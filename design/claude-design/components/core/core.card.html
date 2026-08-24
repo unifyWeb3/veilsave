@@ -1,0 +1,54 @@
+<!-- @dsCard group="Components" viewport="700x330" name="Core" subtitle="Buttons, status, badges, tabs, progress, card" -->
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Core</title>
+<link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>body{padding:18px 20px;background:var(--surface-page)}.grid{display:flex;flex-direction:column;gap:16px}.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}</style>
+</head><body><div id="root"></div>
+<script type="text/babel">
+const { Button, IconButton, Badge, StatusPill, Card, Tabs, ProgressTrack, Tooltip, SectionHead } = window.VeilSaveDesignSystem_484fa6;
+function CoreCard(){
+  const [tab, setTab] = React.useState("current");
+  return <div className="grid">
+    <div className="row">
+      <Button tone="primary" icon="arrow-down-to-line">Deposit</Button>
+      <Button tone="secondary">Withdraw</Button>
+      <Button tone="reveal" size="sm" icon="eye">Reveal</Button>
+      <Button tone="ghost" size="sm" iconAfter="arrow-right">Evidence</Button>
+      <Button tone="danger" size="sm">Cancel request</Button>
+      <Button tone="primary" size="sm" busy>Awaiting wallet</Button>
+      <Button tone="primary" size="sm" disabled>Deposit</Button>
+      <IconButton name="copy" label="Copy" /><IconButton name="eye-off" label="Hide" tone="private" /><IconButton name="external-link" label="Explorer" tone="outline" />
+    </div>
+    <div className="row">
+      <StatusPill tone="private">Encrypted</StatusPill>
+      <StatusPill tone="verified">Authenticated</StatusPill>
+      <StatusPill tone="pending" pulse>Awaiting VRF</StatusPill>
+      <StatusPill tone="critical">Redemption failed</StatusPill>
+      <StatusPill tone="terminal">Timed out</StatusPill>
+      <StatusPill tone="neutral">Open</StatusPill>
+    </div>
+    <div className="row">
+      <Badge mono>EPOCH 42</Badge><Badge icon="grid-2x2">Slot 07</Badge><Badge tone="private" icon="lock">Private</Badge><Badge tone="verified" icon="shield-check">Sepolia</Badge>
+      <span style={{display:"inline-flex",alignItems:"center",gap:6,color:"var(--text-muted)",font:"var(--type-body-sm)"}}>Eligible weight <Tooltip content="Frozen weights never change after the VRF request." /></span>
+    </div>
+    <div style={{display:"grid",gridTemplateColumns:"1.1fr 1fr",gap:18,alignItems:"start"}}>
+      <div style={{display:"flex",flexDirection:"column",gap:12}}>
+        <Tabs items={[{id:"current",label:"Current draw"},{id:"history",label:"History",count:41}]} value={tab} onChange={setTab} />
+        <div style={{display:"flex",flexDirection:"column",gap:9}}>
+          <ProgressTrack value={68} tone="private" label="Epoch elapsed" />
+          <ProgressTrack indeterminate tone="pending" label="Awaiting KMS proof" />
+        </div>
+      </div>
+      <Card tone="base" pad={14}>
+        <SectionHead label="Record" title="Epoch 41" rule={false} />
+        <p style={{font:"var(--type-body-sm)",color:"var(--text-muted)",marginTop:8}}>Cards frame records, dialogs and tools — never page sections, never nested.</p>
+      </Card>
+    </div>
+  </div>;
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<CoreCard />);
+</script></body></html>

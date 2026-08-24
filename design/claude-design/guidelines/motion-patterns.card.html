@@ -1,0 +1,14 @@
+<!-- @dsCard group="Motion" viewport="700x230" name="Named patterns" subtitle="ENCRYPT · DECRYPT · SCAN · TICK · ATTEST · SETTLE" -->
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Motion patterns</title>
+<link rel="stylesheet" href="../styles.css">
+<style>body{padding:16px 18px;background:var(--surface-page)}.g{display:grid;grid-template-columns:repeat(3,1fr);gap:18px 22px}.demo{height:52px;border:1px solid var(--border-hairline);border-radius:var(--r-md);background:var(--surface-raised);display:grid;place-items:center;overflow:hidden;position:relative}.n{display:flex;flex-direction:column;gap:7}.val{font:var(--type-num-3);font-variant-numeric:tabular-nums;color:var(--text-primary)}.dots{color:var(--text-private);letter-spacing:.12em}.scan{position:absolute;inset:0;width:40%;background:linear-gradient(90deg,transparent,var(--periwinkle-500),transparent);animation:vs-scan 1.6s var(--ease-mechanical) infinite}.ticks{display:flex;gap:5;align-items:flex-end}.ticks i{width:3px;height:18px;background:var(--periwinkle-500);border-radius:1px;transform-origin:bottom;animation:vs-tick 2.4s var(--ease-mechanical) infinite}.att{font:var(--type-mono);color:var(--teal-400);animation:vs-attest 2s var(--ease-mechanical) infinite}.set{display:flex;flex-direction:column;gap:4}.set i{display:block;width:64px;height:6px;border-radius:1px;background:var(--periwinkle-600);animation:vs-settle 2.2s var(--ease-entrance) infinite}</style>
+</head><body>
+<div class="g">
+<div class="n"><div class="demo"><span class="val dots" style="animation:vs-encrypt 2.6s var(--ease-standard) infinite">••••••</span></div><span class="vs-micro">Encrypt · value becomes private</span></div>
+<div class="n"><div class="demo"><span class="val" style="animation:vs-decrypt 2.6s var(--ease-entrance) infinite">1,284.72</span></div><span class="vs-micro">Decrypt · owner-requested reveal</span></div>
+<div class="n"><div class="demo"><span class="scan"></span></div><span class="vs-micro">Scan · work outside this browser</span></div>
+<div class="n"><div class="demo"><span class="ticks"><i style="animation-delay:0s"></i><i style="animation-delay:.12s"></i><i style="animation-delay:.24s"></i><i style="animation-delay:.36s"></i><i style="animation-delay:.48s"></i></span></div><span class="vs-micro">Tick · protocol advances a notch</span></div>
+<div class="n"><div class="demo"><span class="att">0x9f2c…c1 verified</span></div><span class="vs-micro">Attest · a step is sealed</span></div>
+<div class="n"><div class="demo"><span class="set"><i style="animation-delay:0s"></i><i style="animation-delay:.1s"></i><i style="animation-delay:.2s"></i></span></div><span class="vs-micro">Settle · queue moves and rests</span></div>
+</div></body></html>

@@ -1,0 +1,24 @@
+{
+  "name": "veilsave",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Confidential prize-linked savings on Zama FHEVM.",
+  "engines": {
+    "node": "22.22.3"
+  },
+  "packageManager": "pnpm@11.2.2",
+  "scripts": {
+    "build": "pnpm -r --if-present build",
+    "check": "pnpm run format:check && pnpm run typecheck && pnpm run compile && pnpm run test && pnpm run check:boundaries",
+    "check:boundaries": "node scripts/check-source-boundaries.mjs",
+    "compile": "pnpm --filter @veilsave/contracts compile",
+    "format": "prettier --write package.json pnpm-workspace.yaml tsconfig.base.json .github packages scripts deployments",
+    "format:check": "prettier --check package.json pnpm-workspace.yaml tsconfig.base.json .github packages scripts deployments",
+    "test": "pnpm -r --if-present test",
+    "test:spikes": "pnpm --dir spikes exec tsc --noEmit && pnpm --dir spikes test:draw && pnpm --dir spikes test:winner-acl && pnpm --dir spikes test:vrf && pnpm --dir spikes test:asset-yield && pnpm --dir spikes test:withdrawal",
+    "typecheck": "pnpm -r --if-present typecheck"
+  },
+  "devDependencies": {
+    "prettier": "3.6.2"
+  }
+}

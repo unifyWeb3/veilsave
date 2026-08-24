@@ -1,0 +1,10 @@
+spikes/
+docs/
+design-input/
+node_modules/
+artifacts/
+cache/
+coverage/
+dist/
+typechain-types/
+pnpm-lock.yaml

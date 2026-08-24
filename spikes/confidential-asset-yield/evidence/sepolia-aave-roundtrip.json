@@ -1,0 +1,41 @@
+{
+  "status": "BLOCKED",
+  "stage": "aave-supply-simulation",
+  "network": "sepolia",
+  "chainId": "11155111",
+  "walletAddress": "0x5FE738227ab4219bc317812a938dEf57489d444a",
+  "timestamp": "2026-08-16T17:24:52.137Z",
+  "addresses": {
+    "pool": "0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951",
+    "usdt": "0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0",
+    "aUsdt": "0xAF0F6e8b0Dc5c913bbF4d14c22B4E78Dd14310B6",
+    "faucet": "0xC959483DBa39aa9E78757139af0e9a2EDEb3f42D",
+    "adapter": "0x9Db6213f3E74De4A106504d222553bcDC94670B0"
+  },
+  "amounts": {
+    "mintRequested": "10000000",
+    "depositAttempted": "5000000",
+    "walletBalanceBeforeDeposit": "10000000"
+  },
+  "transactions": {
+    "mint": null,
+    "deployment": {
+      "hash": "0x56fca25bdec60a49e328afc9a0009d13a34f18b0491403bd8813b7d1f83d1f7c",
+      "blockNumber": 11502578,
+      "gasUsed": "1060667"
+    },
+    "approval": {
+      "hash": "0x490db08ec1cd8ca72229327deb67745a00070bcb08d4a59648d4dfc58afcff76",
+      "blockNumber": 11502579,
+      "gasUsed": "46215"
+    }
+  },
+  "error": "execution reverted: 51",
+  "decodedAaveError": {
+    "code": "51",
+    "meaning": "SUPPLY_CAP_EXCEEDED",
+    "source": "aave/aave-v3-core contracts/protocol/libraries/helpers/Errors.sol",
+    "inspectedCommit": "782f51917056a53a2c228701058a6c3fb233684a"
+  },
+  "conclusion": "The current Sepolia USDT reserve rejects new supply because its configured supply cap is exceeded. The adapter did not reach a state-changing Aave supply transaction."
+}

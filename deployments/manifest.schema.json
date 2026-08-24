@@ -1,0 +1,179 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://veilsave.example/schemas/deployment-manifest-v1.json",
+  "title": "VeilSave deployment manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "product",
+    "releaseVersion",
+    "sourceCommit",
+    "status",
+    "chainId",
+    "deploymentBlock",
+    "contracts",
+    "external",
+    "asset",
+    "strategy",
+    "vrf",
+    "pool",
+    "governance",
+    "evidence"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "product": { "const": "VeilSave" },
+    "releaseVersion": { "type": "string", "minLength": 1 },
+    "sourceCommit": { "type": "string", "minLength": 7 },
+    "status": { "enum": ["REHEARSAL", "ACTIVE"] },
+    "chainId": { "const": 11155111 },
+    "deploymentBlock": { "type": "integer", "minimum": 1 },
+    "contracts": { "$ref": "#/$defs/contracts" },
+    "external": { "$ref": "#/$defs/external" },
+    "asset": { "$ref": "#/$defs/asset" },
+    "strategy": { "$ref": "#/$defs/strategy" },
+    "vrf": { "$ref": "#/$defs/vrf" },
+    "pool": { "$ref": "#/$defs/pool" },
+    "governance": { "$ref": "#/$defs/governance" },
+    "evidence": { "$ref": "#/$defs/evidence" }
+  },
+  "$defs": {
+    "address": { "type": "string", "pattern": "^0x[0-9a-fA-F]{40}$" },
+    "hash": { "type": "string", "pattern": "^0x[0-9a-fA-F]{64}$" },
+    "contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["address", "deploymentTransaction", "runtimeCodeHash", "verifiedSourceUrl"],
+      "properties": {
+        "address": { "$ref": "#/$defs/address" },
+        "deploymentTransaction": { "$ref": "#/$defs/hash" },
+        "runtimeCodeHash": { "$ref": "#/$defs/hash" },
+        "verifiedSourceUrl": { "type": "string", "format": "uri" }
+      }
+    },
+    "contracts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "confidentialPrizePool",
+        "poolVrfAdapter",
+        "settlementController",
+        "deterministicTestYieldVault"
+      ],
+      "properties": {
+        "confidentialPrizePool": { "$ref": "#/$defs/contract" },
+        "poolVrfAdapter": { "$ref": "#/$defs/contract" },
+        "settlementController": { "$ref": "#/$defs/contract" },
+        "deterministicTestYieldVault": { "$ref": "#/$defs/contract" }
+      }
+    },
+    "external": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "confidentialToken",
+        "underlyingToken",
+        "confidentialWrapper",
+        "acl",
+        "fheExecutor",
+        "kmsVerifier",
+        "inputVerifier",
+        "inputVerificationVerifier",
+        "decryptionVerifier",
+        "gatewayChainId",
+        "relayerUrl",
+        "vrfCoordinator",
+        "vrfWrapper"
+      ],
+      "properties": {
+        "confidentialToken": { "$ref": "#/$defs/address" },
+        "underlyingToken": { "$ref": "#/$defs/address" },
+        "confidentialWrapper": { "$ref": "#/$defs/address" },
+        "acl": { "$ref": "#/$defs/address" },
+        "fheExecutor": { "$ref": "#/$defs/address" },
+        "kmsVerifier": { "$ref": "#/$defs/address" },
+        "inputVerifier": { "$ref": "#/$defs/address" },
+        "inputVerificationVerifier": { "$ref": "#/$defs/address" },
+        "decryptionVerifier": { "$ref": "#/$defs/address" },
+        "gatewayChainId": { "type": "integer", "minimum": 1 },
+        "relayerUrl": { "type": "string", "format": "uri" },
+        "vrfCoordinator": { "$ref": "#/$defs/address" },
+        "vrfWrapper": { "$ref": "#/$defs/address" }
+      }
+    },
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["symbol", "decimals", "wrapperRate"],
+      "properties": {
+        "symbol": { "const": "cUSDT" },
+        "decimals": { "const": 6 },
+        "wrapperRate": { "const": "1" }
+      }
+    },
+    "strategy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["address", "asset", "id", "mode", "deploymentBlock"],
+      "properties": {
+        "address": { "$ref": "#/$defs/address" },
+        "asset": { "$ref": "#/$defs/address" },
+        "id": { "type": "string", "minLength": 1 },
+        "mode": { "enum": ["TEST_YIELD", "LIVE_STRATEGY"] },
+        "deploymentBlock": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "vrf": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["confirmations", "callbackGasLimit", "words"],
+      "properties": {
+        "confirmations": { "type": "integer", "minimum": 3 },
+        "callbackGasLimit": { "type": "integer", "minimum": 50000 },
+        "words": { "const": 1 }
+      }
+    },
+    "pool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "participantCapacity",
+        "epochDurationSeconds",
+        "slotBondWei",
+        "winnerFinalityDelayBlocks",
+        "strategyTimelockSeconds"
+      ],
+      "properties": {
+        "participantCapacity": { "const": 16 },
+        "epochDurationSeconds": { "const": 604800 },
+        "slotBondWei": { "const": "1000000000000000" },
+        "winnerFinalityDelayBlocks": { "const": 96 },
+        "strategyTimelockSeconds": { "const": 86400 }
+      }
+    },
+    "governance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["safe", "timelock", "guardian", "timelockOpenExecutor", "timelockSelfAdmin"],
+      "properties": {
+        "safe": { "$ref": "#/$defs/address" },
+        "timelock": { "$ref": "#/$defs/address" },
+        "guardian": { "$ref": "#/$defs/address" },
+        "timelockOpenExecutor": { "const": true },
+        "timelockSelfAdmin": { "const": true }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hcuReportSha256", "aclValidationSha256", "gasReportSha256", "aclValidatedAt"],
+      "properties": {
+        "hcuReportSha256": { "$ref": "#/$defs/hash" },
+        "aclValidationSha256": { "$ref": "#/$defs/hash" },
+        "gasReportSha256": { "$ref": "#/$defs/hash" },
+        "aclValidatedAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

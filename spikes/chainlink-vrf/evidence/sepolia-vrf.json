@@ -1,0 +1,42 @@
+{
+  "status": "PASS",
+  "network": "sepolia",
+  "chainId": "11155111",
+  "rpcProviderClass": "public JSON-RPC via curl transport fallback",
+  "walletAddress": "0x5FE738227ab4219bc317812a938dEf57489d444a",
+  "contractAddress": "0xC3C61C2b03DABBE6bD9b2a0f9aacb581b0dE1C10",
+  "epochId": "1",
+  "requestId": "89996037916091759730096125681468603622649238195012412653936538595188831228718",
+  "stateCommitment": "0xd07151b8b257a396111da7f15a3e57b2d63bc13ede844cf54c8811590dfa4feb",
+  "randomWord": "94590980750975441306910478841954796888655432260289797305680318582764318434770",
+  "request": {
+    "hash": "0x89d3c0801b3b675dc9c511255154571298a6c07e1b2d716b48a668836ba72aad",
+    "blockNumber": 11502872,
+    "gasUsed": "165855",
+    "status": 1,
+    "requestPriceWei": "266022555629747",
+    "epochBinding": "1"
+  },
+  "fulfillment": {
+    "hash": "0x5d96742b427d09fa34cb11293e8c16e9beaf4e2b085bc92a5554338e508139da",
+    "blockNumber": 11502877,
+    "gasUsed": "130752",
+    "status": 1,
+    "confirmationsObserved": 5
+  },
+  "draw": {
+    "hash": "0x62bc09d539eac6400369ec3bc61631cbfafe7a52823bbae9cfa45e6ad20d7188",
+    "blockNumber": 11503298,
+    "gasUsed": "35338",
+    "status": 1
+  },
+  "withdrawal": {
+    "hash": "0x1c87cdac2a84534d00a48be319b452340caef8b14ddada94f6813991339585e7",
+    "blockNumber": 11503300,
+    "gasUsed": "28742",
+    "status": 1
+  },
+  "finalStatus": 4,
+  "callbackPerformedFheWork": false,
+  "timestamp": "2026-08-16T19:52:47.286Z"
+}

@@ -1,0 +1,31 @@
+{
+  "status": "PASS_LOCAL",
+  "recordedAt": "2026-08-24",
+  "suites": {
+    "productionContracts": {
+      "command": "pnpm --filter @veilsave/contracts exec hardhat test",
+      "files": 9,
+      "tests": 55
+    },
+    "web": {
+      "command": "pnpm --filter @veilsave/web test",
+      "files": 13,
+      "tests": 30
+    },
+    "spikeRegression": {
+      "command": "pnpm test:spikes",
+      "tests": 56,
+      "breakdown": {
+        "encryptedDrawAndOracle": 29,
+        "winnerAcl": 6,
+        "vrf": 7,
+        "assetYield": 7,
+        "withdrawalSettlement": 7
+      }
+    }
+  },
+  "totalTests": 141,
+  "repositoryGate": "PASS",
+  "sourceBoundaryAndSecretChecks": "PASS",
+  "liveSepoliaAcceptance": "PENDING_CREDENTIALS_AND_DEPLOYMENT"
+}

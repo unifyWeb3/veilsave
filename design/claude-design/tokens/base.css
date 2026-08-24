@@ -1,0 +1,93 @@
+/* VeilSave base layer — resets, document defaults, focus, field environment, and the
+   text-role utilities every surface shares. No component styling lives here. */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--surface-page);
+  color: var(--text-primary);
+  font: var(--type-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+h1, h2, h3, h4, p, figure, blockquote { margin: 0; }
+h1, h2, h3, h4 { letter-spacing: var(--tr-tight); text-wrap: balance; }
+p { text-wrap: pretty; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+button, input, select, textarea { font: inherit; color: inherit; }
+img, svg { display: block; max-width: 100%; }
+table { border-collapse: collapse; }
+hr { border: 0; border-top: var(--rule); margin: 0; }
+
+a { color: var(--link); text-decoration: none; text-underline-offset: 3px; transition: color var(--dur-fast) var(--ease-standard); }
+a:hover { color: var(--link-hover); text-decoration: underline; }
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible, input:focus-visible, select:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+::selection { background: rgba(124, 131, 255, 0.3); color: var(--ink-999); }
+
+* { scrollbar-width: thin; scrollbar-color: var(--ink-300) transparent; }
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb { background: var(--ink-300); border: 3px solid transparent; background-clip: content-box; border-radius: var(--r-pill); }
+
+/* ── field: the ambient environment ─────────────────────────────
+   A 64px hairline lattice — the same geometry the slot grid uses — plus two low
+   radial washes. This is the only "background art" in the system: it is a measuring
+   grid, not decoration, and it never sits under body copy at more than 7% opacity. */
+.vs-field { position: relative; isolation: isolate; }
+.vs-field::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(to right, var(--field-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--field-grid) 1px, transparent 1px);
+  background-size: var(--field-cell) var(--field-cell);
+  mask-image: radial-gradient(130% 110% at 50% 0%, #000 22%, transparent 78%);
+  -webkit-mask-image: radial-gradient(130% 110% at 50% 0%, #000 22%, transparent 78%);
+  pointer-events: none;
+}
+.vs-field::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-image: var(--field-glow-private), var(--field-glow-verified), var(--field-glow-depth);
+  pointer-events: none;
+}
+.vs-field-flat::before { mask-image: none; -webkit-mask-image: none; opacity: 0.6; }
+.vs-field-flat::after { background-image: var(--field-glow-depth); }
+
+/* ── panels ─────────────────────────────────────────────────────
+   One panel treatment, three weights. Panels never nest and never float: each is
+   pinned to a hairline and lifted only enough to separate it from the field. */
+.vs-panel { background: var(--surface-raised); border: 1px solid var(--border-hairline); border-radius: var(--r-lg); box-shadow: var(--sheen-top), var(--shadow-panel); }
+.vs-panel-quiet { background: var(--surface-base); border: 1px solid var(--border-hairline); border-radius: var(--r-lg); box-shadow: var(--sheen-top); }
+.vs-panel-lifted { background: var(--surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--r-lg); box-shadow: var(--sheen-top), var(--shadow-raised); }
+
+/* ── text roles ─────────────────────────────────────────────── */
+.vs-display-0 { font: var(--type-display-0); letter-spacing: var(--tr-display); }
+.vs-display-1 { font: var(--type-display-1); letter-spacing: var(--tr-display); }
+.vs-display-2 { font: var(--type-display-2); letter-spacing: -0.026em; }
+.vs-display-3 { font: var(--type-display-3); letter-spacing: var(--tr-tight); color: var(--text-secondary); }
+.vs-title-1 { font: var(--type-title-1); letter-spacing: var(--tr-tight); }
+.vs-title-2 { font: var(--type-title-2); letter-spacing: var(--tr-tight); }
+.vs-title-3 { font: var(--type-title-3); }
+.vs-lead { font: var(--type-lead); color: var(--text-secondary); max-width: var(--measure-prose); }
+.vs-body { font: var(--type-body); }
+.vs-body-sm { font: var(--type-body-sm); color: var(--text-secondary); }
+.vs-label { font: var(--type-label); letter-spacing: var(--tr-label); text-transform: uppercase; color: var(--text-muted); }
+.vs-micro { font: var(--type-micro); letter-spacing: var(--tr-label); text-transform: uppercase; color: var(--text-muted); }
+.vs-num { font-variant-numeric: tabular-nums; letter-spacing: var(--tr-tight); }
+.vs-num-0 { font: var(--type-num-0); font-variant-numeric: tabular-nums; letter-spacing: var(--tr-display); }
+.vs-num-1 { font: var(--type-num-1); font-variant-numeric: tabular-nums; letter-spacing: var(--tr-display); }
+.vs-num-2 { font: var(--type-num-2); font-variant-numeric: tabular-nums; letter-spacing: var(--tr-tight); }
+.vs-num-3 { font: var(--type-num-3); font-variant-numeric: tabular-nums; letter-spacing: var(--tr-tight); }
+.vs-num-4 { font: var(--type-num-4); font-variant-numeric: tabular-nums; }
+.vs-mono { font: var(--type-mono); letter-spacing: var(--tr-mono); }
+.vs-mono-sm { font: var(--type-mono-sm); letter-spacing: var(--tr-mono); text-transform: uppercase; }
+.vs-prose { max-width: var(--measure-prose); color: var(--text-secondary); }
+.vs-sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }

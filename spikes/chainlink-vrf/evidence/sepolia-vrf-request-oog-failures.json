@@ -1,0 +1,33 @@
+{
+  "status": "FAIL",
+  "stage": "vrf-request-gas-estimation",
+  "network": "sepolia",
+  "chainId": "11155111",
+  "walletAddress": "0x5FE738227ab4219bc317812a938dEf57489d444a",
+  "failedAttempts": [
+    {
+      "contractAddress": "0x3D0C180B1466Dfd651F2163B71Fa78fDe68AFC53",
+      "transactionHash": "0x32816d32e751f5fbf5794030d9385fc385a6c92e57421b0917042dfc5b68806c",
+      "blockNumber": 11499970,
+      "gasLimit": "160369",
+      "gasUsed": "160369"
+    },
+    {
+      "contractAddress": "0x431D7218af6E7F2C5b3dF34a6f1F1DDC549903DC",
+      "transactionHash": "0x72318e37df64b588eeec64af38dff966f746c3de5c23762f12c9741e07ef3a24",
+      "blockNumber": 11502840,
+      "gasLimit": "160369",
+      "gasUsed": "160369"
+    }
+  ],
+  "rawTransactionEvidence": {
+    "selector": "0xcc0ec08e",
+    "decodedCall": "requestRandomness(uint64)",
+    "epochId": "1",
+    "valueWei": "0"
+  },
+  "classification": "Both transactions exhausted the complete RPC-estimated gas limit while entering the direct-funding wrapper. Native consumer funding had already succeeded.",
+  "retryChange": "Set a bounded explicit 500000 gas limit on requestRandomness; the next fixed request succeeded and fulfilled.",
+  "successfulEvidence": "sepolia-vrf.json",
+  "recordedAt": "2026-08-16"
+}

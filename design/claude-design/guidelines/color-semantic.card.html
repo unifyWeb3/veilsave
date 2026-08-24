@@ -1,0 +1,10 @@
+<!-- @dsCard group="Colors" viewport="700x170" name="Pending & critical" subtitle="Amber and red, held back for protocol waits and failures" -->
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Semantic</title>
+<link rel="stylesheet" href="../styles.css">
+<style>body{padding:16px 18px;background:var(--surface-page)}.r{display:grid;grid-template-columns:repeat(2,1fr);gap:20}.sw{display:flex;gap:6}.sw span{flex:1;height:34px;border-radius:var(--r-sm)}</style>
+</head><body>
+<div class="r">
+<div style="display:flex;flex-direction:column;gap:9"><span class="vs-label" style="color:var(--text-pending)">Pending · waiting on the protocol</span><div class="sw"><span style="background:var(--amber-400)"></span><span style="background:var(--amber-500)"></span><span style="background:var(--amber-600)"></span><span style="background:var(--amber-900)"></span></div><span class="vs-body-sm">VRF fulfilment, KMS proof, ACL propagation, FIFO settlement, TEST YIELD identity, stale data.</span></div>
+<div style="display:flex;flex-direction:column;gap:9"><span class="vs-label" style="color:var(--text-critical)">Critical · failed or blocked</span><div class="sw"><span style="background:var(--red-400)"></span><span style="background:var(--red-500)"></span><span style="background:var(--red-600)"></span><span style="background:var(--red-900)"></span></div><span class="vs-body-sm">Wrong network, RPC down, rejected write, redemption failure. Never used for a queue position.</span></div>
+</div></body></html>

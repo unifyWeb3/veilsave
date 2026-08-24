@@ -1,0 +1,22 @@
+{
+  "status": "PASS_LOCAL_ONLY",
+  "scope": "production-shaped ConfidentialPrizePool draw under Hardhat FHEVM mock",
+  "network": "hardhat-mock",
+  "chainId": 31337,
+  "slots": 16,
+  "globalHCU": 14927246,
+  "maxHCUDepth": 3448096,
+  "gasUsed": "2081929",
+  "releaseTargets": {
+    "globalHCU": 17000000,
+    "maxHCUDepth": 4000000
+  },
+  "absoluteDocumentedLimits": {
+    "globalHCU": 20000000,
+    "maxHCUDepth": 5000000
+  },
+  "globalTargetMargin": 2072754,
+  "depthTargetMargin": 551904,
+  "sourceTest": "packages/contracts/test/draw/M7EncryptedWeightedDraw.test.ts",
+  "measurementNote": "Local evidence is not a substitute for the final Sepolia HCU/depth/gas release gate."
+}

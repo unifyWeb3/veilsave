@@ -1,0 +1,17 @@
+packages:
+  - "packages/*"
+  - "apps/*"
+
+allowBuilds:
+  keccak: true
+
+minimumReleaseAgeExclude:
+  - viem@2.55.17
+
+supportedArchitectures:
+  os:
+    - linux
+  cpu:
+    - x64
+  libc:
+    - glibc

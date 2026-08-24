@@ -1,0 +1,42 @@
+{
+  "name": "@veilsave/contracts",
+  "version": "0.0.0",
+  "private": true,
+  "description": "VeilSave production contracts and protocol tests.",
+  "scripts": {
+    "build": "hardhat compile",
+    "clean": "hardhat clean",
+    "compile": "hardhat compile",
+    "deploy:sepolia": "hardhat run scripts/deployment/deploy-sepolia.ts --network sepolia",
+    "deploy:audit": "hardhat run scripts/deployment/audit-deployment.ts --network sepolia",
+    "test": "hardhat test",
+    "test:deployment": "hardhat test test/deployment/M11DeploymentRehearsal.test.ts",
+    "test:smoke": "hardhat test test/foundation/M0Foundation.test.ts",
+    "typecheck": "tsc --noEmit",
+    "verify:sepolia": "hardhat run scripts/deployment/verify-sepolia.ts --network sepolia"
+  },
+  "dependencies": {
+    "@fhevm/solidity": "0.11.1",
+    "@openzeppelin/confidential-contracts": "0.4.0",
+    "@openzeppelin/contracts": "5.6.1",
+    "encrypted-types": "0.0.4"
+  },
+  "devDependencies": {
+    "@fhevm/hardhat-plugin": "0.4.2",
+    "@fhevm/mock-utils": "0.4.2",
+    "@nomicfoundation/hardhat-chai-matchers": "2.1.0",
+    "@nomicfoundation/hardhat-ethers": "3.1.3",
+    "@nomicfoundation/hardhat-verify": "2.1.3",
+    "@types/chai": "4.3.20",
+    "@types/mocha": "10.0.10",
+    "@types/node": "20.19.30",
+    "@zama-fhe/relayer-sdk": "0.4.1",
+    "chai": "4.5.0",
+    "ethers": "6.16.0",
+    "hardhat": "2.28.6",
+    "hardhat-gas-reporter": "2.3.0",
+    "mocha": "11.7.5",
+    "ts-node": "10.9.2",
+    "typescript": "5.9.3"
+  }
+}

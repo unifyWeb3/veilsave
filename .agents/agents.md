@@ -1,0 +1,1 @@
+we will continue until this is done properly, we will treat every run as if it will be successful because we will learn from failures and consult best information before proceeding forward such that we are confident that result will be a success. we will not plan for failure"

@@ -1,0 +1,131 @@
+/* VeilSave color system.
+   Surfaces are deep navy drifting to dark teal as they recede — the supplied brand ink
+   #0B1020 is the anchor band, not the page. Two brand accents carry the core idea:
+     periwinkle #7C83FF = encrypted / private / the masked many
+     teal       #2FBFA0 = verified / settled / the singular proven
+   Amber and red are semantic only: waiting on the protocol, and failure. */
+:root {
+  /* ── ink ramp: deep navy-teal → near-white ──────────────────── */
+  --ink-000: #04080d; /* page */
+  --ink-025: #061019; /* deep alternating band */
+  --ink-050: #0b1020; /* supplied brand navy — hero and footer bands */
+  --ink-075: #08111a; /* base panels */
+  --ink-100: #0c1622; /* raised */
+  --ink-150: #111c29; /* elevated */
+  --ink-200: #16222f; /* inset */
+  --ink-300: #1e2b3a;
+  --ink-400: #2c3a4c;
+  --ink-500: #47576c;
+  --ink-600: #7688a0;
+  --ink-700: #9cacc0;
+  --ink-800: #c7d3e0;
+  --ink-900: #e6edf4;
+  --ink-999: #ffffff;
+
+  /* ── raw accents ────────────────────────────────────────────── */
+  --periwinkle-300: #b3b7ff;
+  --periwinkle-400: #9aa0ff;
+  --periwinkle-500: #7c83ff;
+  --periwinkle-600: #5a61e0;
+  --periwinkle-800: #23255c;
+  --periwinkle-900: #1a1d44;
+  --periwinkle-950: #101230;
+
+  --teal-300: #7fdcc7;
+  --teal-400: #4fceb1;
+  --teal-500: #2fbfa0;
+  --teal-600: #1f9b81;
+  --teal-800: #0f473d;
+  --teal-900: #0b322c;
+  --teal-950: #071b1b;
+
+  --amber-400: #eec06a;
+  --amber-500: #dfa43a;
+  --amber-600: #b8842a;
+  --amber-900: #3a2c10;
+  --amber-950: #251c0b;
+
+  --red-400: #f0868c;
+  --red-500: #e4575e;
+  --red-600: #c03c43;
+  --red-900: #3d1417;
+  --red-950: #290e10;
+
+  /* ── surfaces ───────────────────────────────────────────────── */
+  --surface-page: var(--ink-000);
+  --surface-deep: var(--ink-025);
+  --surface-brand: var(--ink-050);
+  --surface-base: var(--ink-075);
+  --surface-raised: var(--ink-100);
+  --surface-elevated: var(--ink-150);
+  --surface-inset: var(--ink-200);
+  --surface-overlay: #0d1826;
+  --surface-scrim: rgba(3, 6, 11, 0.74);
+
+  /* ── field: the ambient environment behind full-bleed sections ─ */
+  --field-grid: rgba(156, 172, 192, 0.045);
+  --field-grid-strong: rgba(156, 172, 192, 0.075);
+  --field-cell: 64px; /* @kind spacing */
+  --field-glow-private: radial-gradient(52% 62% at 14% 6%, rgba(124, 131, 255, 0.16), transparent 68%); /* @kind other */
+  --field-glow-verified: radial-gradient(46% 58% at 92% 82%, rgba(47, 191, 160, 0.11), transparent 66%); /* @kind other */
+  --field-glow-depth: radial-gradient(120% 90% at 50% 0%, rgba(11, 16, 32, 0.9), transparent 72%); /* @kind other */
+
+  /* ── borders ────────────────────────────────────────────────── */
+  --border-hairline: rgba(156, 172, 192, 0.12);
+  --border-subtle: rgba(156, 172, 192, 0.19);
+  --border-strong: rgba(156, 172, 192, 0.32);
+  --border-private: rgba(124, 131, 255, 0.38);
+  --border-verified: rgba(47, 191, 160, 0.38);
+  --border-pending: rgba(223, 164, 58, 0.34);
+  --border-critical: rgba(228, 87, 94, 0.38);
+
+  /* ── text ───────────────────────────────────────────────────── */
+  --text-primary: var(--ink-900);
+  --text-secondary: var(--ink-700);
+  --text-muted: var(--ink-600);
+  --text-faint: var(--ink-500); /* decorative / large only — never body copy */
+  --text-inverse: var(--ink-050);
+  --text-private: var(--periwinkle-400);
+  --text-verified: var(--teal-400);
+  --text-pending: var(--amber-400);
+  --text-critical: var(--red-400);
+
+  /* ── semantic washes ────────────────────────────────────────── */
+  --wash-private: rgba(124, 131, 255, 0.1);
+  --wash-verified: rgba(47, 191, 160, 0.1);
+  --wash-pending: rgba(223, 164, 58, 0.09);
+  --wash-critical: rgba(228, 87, 94, 0.09);
+  --wash-neutral: rgba(156, 172, 192, 0.06);
+
+  /* ── actions ────────────────────────────────────────────────── */
+  --action-primary-bg: var(--ink-900);
+  --action-primary-fg: var(--ink-050);
+  --action-primary-hover: var(--ink-999);
+  --action-primary-active: var(--ink-800);
+  --action-secondary-bg: transparent;
+  --action-secondary-fg: var(--ink-900);
+  --action-secondary-border: var(--border-strong);
+  --action-secondary-hover: rgba(156, 172, 192, 0.08);
+  --action-ghost-fg: var(--ink-700);
+  --action-ghost-hover: rgba(156, 172, 192, 0.07);
+  --action-reveal-fg: var(--periwinkle-400);
+  --action-reveal-border: var(--border-private);
+  --action-reveal-hover: rgba(124, 131, 255, 0.14);
+  --action-danger-fg: var(--red-400);
+  --action-disabled-fg: var(--ink-500);
+  --action-disabled-bg: rgba(156, 172, 192, 0.06);
+
+  --focus-ring: var(--periwinkle-400);
+  --focus-ring-offset: var(--surface-page);
+
+  /* ── protocol chrome / data viz ─────────────────────────────── */
+  --slot-empty: rgba(156, 172, 192, 0.15);
+  --slot-filled: var(--periwinkle-600);
+  --slot-mine: var(--periwinkle-400);
+  --slot-drawn: var(--teal-500);
+  --tick-idle: rgba(124, 131, 255, 0.26);
+  --tick-elapsed: var(--periwinkle-500);
+  --tick-now: var(--teal-500);
+  --link: var(--periwinkle-400);
+  --link-hover: var(--periwinkle-300);
+}

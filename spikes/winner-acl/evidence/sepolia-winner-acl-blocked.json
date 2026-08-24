@@ -1,0 +1,29 @@
+{
+  "status": "BLOCKED",
+  "stage": "zama-relayer-kms-connectivity",
+  "network": "sepolia",
+  "chainId": "11155111",
+  "walletAddress": "0x5FE738227ab4219bc317812a938dEf57489d444a",
+  "expected": "Complete encrypted winner public decryption, KMS proof finalization, ACL grant propagation, winner user decryption, and unauthorized negative checks.",
+  "actual": "The current run terminated with UND_ERR_CONNECT_TIMEOUT before a complete evidence record could be produced.",
+  "localEvidence": {
+    "status": "PASS",
+    "tests": 6,
+    "winnerCanDecrypt": true,
+    "unauthorizedRolesRejected": [
+      "admin",
+      "participant",
+      "arbitrary wallet",
+      "keeper"
+    ],
+    "publicPrizeDecryptionRejected": true,
+    "wrongCleartextRejected": true,
+    "wrongHandleRejected": true,
+    "wrongEpochRejected": true,
+    "replayRejected": true,
+    "zeroWinnerSafe": true
+  },
+  "classification": "External relayer/KMS availability blocked live propagation measurement; contract and ACL semantics pass the official local FHEVM harness.",
+  "requiredRetry": "Rerun the unchanged Sepolia script when Zama relayer/KMS connectivity is stable and retain the generated sepolia-winner-acl.json artifact.",
+  "recordedAt": "2026-08-16"
+}

@@ -1,0 +1,93 @@
+/* VeilSave motion system.
+   Motion exists to explain protocol state. Eight named patterns, one duration ladder.
+   Everything degrades to an instant state change under prefers-reduced-motion. */
+:root {
+  --dur-instant: 90ms; /* @kind other */ /* press feedback, tooltip */
+  --dur-fast: 140ms; /* @kind other */ /* hover, focus, small toggles */
+  --dur-base: 220ms; /* @kind other */ /* enter/exit of rows, panels, chips */
+  --dur-slow: 380ms; /* @kind other */ /* dialog + sheet transitions */
+  --dur-deliberate: 640ms; /* @kind other */ /* encryption, verification steps */
+  --dur-reveal: 900ms; /* @kind other */ /* prize reveal */
+  --dur-epoch: 1400ms; /* @kind other */ /* epoch/draw progression */
+
+  --ease-standard: cubic-bezier(0.2, 0, 0.15, 1); /* @kind other */
+  --ease-entrance: cubic-bezier(0.16, 1, 0.3, 1); /* @kind other */
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1); /* @kind other */
+  --ease-mechanical: cubic-bezier(0.62, 0, 0.38, 1); /* @kind other */ /* protocol progress — machine cadence */
+  --ease-settle: cubic-bezier(0.34, 1.16, 0.64, 1); /* @kind other */ /* single soft overshoot, reveal only */
+
+  --stagger: 60ms; /* @kind other */ /* per-item delay in lists, timelines, lattices */
+}
+
+/* 1 · ENCRYPT — a plaintext value collapsing into confidentiality */
+@keyframes vs-encrypt {
+  0% { opacity: 1; filter: blur(0); letter-spacing: var(--tr-tight); }
+  45% { opacity: 0.35; filter: blur(5px); letter-spacing: 0.14em; }
+  46% { opacity: 0.35; filter: blur(5px); letter-spacing: 0.14em; }
+  100% { opacity: 1; filter: blur(0); letter-spacing: 0.02em; }
+}
+/* 2 · DECRYPT — confidentiality resolving into a value the owner asked for */
+@keyframes vs-decrypt {
+  0% { opacity: 0; transform: translateY(3px); filter: blur(6px); }
+  100% { opacity: 1; transform: none; filter: blur(0); }
+}
+/* 3 · SCAN — work happening off-chain or in the relayer; replaces the spinner */
+@keyframes vs-scan {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+/* 4 · TICK — protocol progress advancing one discrete notch */
+@keyframes vs-tick {
+  0% { opacity: 0.35; transform: scaleY(0.6); }
+  60% { opacity: 1; transform: scaleY(1); }
+  100% { opacity: 1; transform: scaleY(1); }
+}
+/* 5 · ATTEST — a verification step being sealed, left to right */
+@keyframes vs-attest {
+  0% { clip-path: inset(0 100% 0 0); }
+  100% { clip-path: inset(0 0 0 0); }
+}
+/* 6 · SETTLE — a queued item moving forward and coming to rest */
+@keyframes vs-settle {
+  0% { transform: translateY(6px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+/* 7 · BREATHE — waiting on an external dependency (VRF, KMS, ACL) */
+@keyframes vs-breathe {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+/* 8 · HALO — one state change worth noticing. Plays a fixed number of times, never loops */
+@keyframes vs-halo {
+  0% { box-shadow: 0 0 0 0 rgba(47, 191, 160, 0.34); }
+  100% { box-shadow: 0 0 0 16px rgba(47, 191, 160, 0); }
+}
+
+/* ambient — the hero field only. Slow enough to read as "live", never as animation */
+@keyframes vs-drift {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+@keyframes vs-seal {
+  0% { opacity: 0; transform: scale(0.9); }
+  60% { opacity: 1; transform: scale(1); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-instant: 1ms; /* @kind other */
+    --dur-fast: 1ms; /* @kind other */
+    --dur-base: 1ms; /* @kind other */
+    --dur-slow: 1ms; /* @kind other */
+    --dur-deliberate: 1ms; /* @kind other */
+    --dur-reveal: 1ms; /* @kind other */
+    --dur-epoch: 1ms; /* @kind other */
+    --stagger: 0ms; /* @kind other */
+  }
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+}

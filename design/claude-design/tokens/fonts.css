@@ -1,0 +1,6 @@
+/* VeilSave webfonts.
+   SUBSTITUTION NOTICE: no font binaries were supplied with the product context.
+   Instrument Sans and IBM Plex Mono are the closest Google Fonts matches to the
+   precise, low-contrast grotesque + technical mono pairing the brand sheet implies.
+   Replace this @import with local @font-face rules when licensed files arrive. */
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap");

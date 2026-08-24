@@ -1,0 +1,104 @@
+<!-- @dsCard group="Console" viewport="1280x820" name="Dashboard (/app)" subtitle="Connected console — position, epoch, prize, queue, activity" -->
+<!-- @startingPoint section="Console" subtitle="VeilSave connected dashboard with deposit and withdrawal flows" viewport="1280x820" -->
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VeilSave — Console</title>
+<link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>
+#vs-demo{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;z-index:300;display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--r-pill);background:var(--surface-overlay);border:1px solid var(--border-subtle);box-shadow:var(--shadow-overlay)}
+#vs-demo span{font:var(--type-micro);letter-spacing:var(--tr-label);text-transform:uppercase;color:var(--text-faint)}
+#vs-demo select{appearance:none;background:var(--surface-inset);border:1px solid var(--border-hairline);border-radius:var(--r-pill);color:var(--text-secondary);font:var(--type-body-sm);padding:4px 10px}
+</style>
+</head><body><div id="root"></div>
+<script src="mock.jsx" type="text/babel"></script>
+<script src="ConsoleShell.jsx" type="text/babel"></script>
+<script src="PrizePanel.jsx" type="text/babel"></script>
+<script src="Overview.jsx" type="text/babel"></script>
+<script src="DepositFlow.jsx" type="text/babel"></script>
+<script src="WithdrawFlow.jsx" type="text/babel"></script>
+<script src="DrawsVerify.jsx" type="text/babel"></script>
+<script type="text/babel">
+const DS = window.VeilSaveDesignSystem_484fa6;
+const { RecoveryBanner, StateBlock, WalletControl, StrategyBadge, Button, PrivacyCallout, SlotGrid, StatusPill } = DS;
+const useIsNarrow = window.vsUseIsNarrow;
+
+const SCENARIOS = [
+  ["default", "Winner + queued ticket"],
+  ["winner", "Winner reveal sequence"],
+  ["queued", "Claimable withdrawal"],
+  ["empty", "No savings yet"],
+  ["stale", "Stale data"],
+  ["paused", "Deposits paused"],
+  ["rpcDown", "RPC unavailable"],
+  ["wrongNetwork", "Wrong network"],
+];
+
+function Banner({ scenario, onFix }) {
+  if (scenario === "wrongNetwork") return <RecoveryBanner tone="network" title="Wrong network" actionLabel="Switch to Sepolia" onAction={onFix} secondaryLabel="Why writes are blocked">Writes are blocked until your wallet is on Sepolia. Reads continue and nothing about your position has changed.</RecoveryBanner>;
+  if (scenario === "rpcDown") return <RecoveryBanner tone="critical" title="Sepolia RPC unavailable" actionLabel="Retry" onAction={onFix}>Confidential values cannot be read right now. Your principal is unaffected and no action is required.</RecoveryBanner>;
+  if (scenario === "paused") return <RecoveryBanner tone="paused" title="Deposits paused" scope="Deposits" secondaryLabel="View withdrawal">Withdrawals, claims and prize reveals are unaffected. Existing eligibility continues into the next epoch.</RecoveryBanner>;
+  if (scenario === "stale") return <RecoveryBanner tone="pending" title="Data may be out of date" actionLabel="Refresh" onAction={onFix}>The last successful chain read was 4 minutes ago. Revealed values are from that read.</RecoveryBanner>;
+  return null;
+}
+
+function PoolPublic({ narrow, onEnter }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+      <div style={{ display: "grid", gridTemplateColumns: narrow ? "1fr" : "minmax(0,1fr) auto", gap: 32, alignItems: "start" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: "46ch" }}>
+          <StatusPill tone="pending" pulse>Epoch 42 · awaiting randomness</StatusPill>
+          <h2 className="vs-display-2" style={{ margin: 0 }}>Eleven of sixteen slots are taken.</h2>
+          <p className="vs-body" style={{ color: "var(--text-secondary)", margin: 0 }}>
+            Slot occupancy and epoch timing are public. Balances, weights and prizes are not. Connect a wallet to take a slot and see your own position.
+          </p>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <WalletControl state="disconnected" onConnect={onEnter} />
+            <Button tone="secondary" iconAfter="arrow-right">Read the privacy boundary</Button>
+          </div>
+          <StrategyBadge mode="test" />
+        </div>
+        <SlotGrid slots={window.VS_MOCK.pool.slots.map(s => s === "mine" ? "filled" : s)} size="lg" legend />
+      </div>
+      <PrivacyCallout />
+    </div>
+  );
+}
+
+function App() {
+  const narrow = useIsNarrow("(max-width: 900px)");
+  const [view, setView] = React.useState("dashboard");
+  const [scenario, setScenario] = React.useState("default");
+  const [deposit, setDeposit] = React.useState(false);
+  const [withdraw, setWithdraw] = React.useState(false);
+  const titles = { pool: ["Public", "Pool overview"], dashboard: ["Sepolia · slot 07", "Dashboard"], draws: ["Public record", "Draws"], privacy: ["Public", "Privacy boundary"] };
+  const [eyebrow, title] = titles[view] || titles.dashboard;
+  return <>
+    <ConsoleShell
+      view={view} onNavigate={setView} eyebrow={eyebrow} title={title}
+      banner={<Banner scenario={scenario} onFix={() => setScenario("default")} />}
+      actions={<div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <StrategyBadge mode="test" size="sm" />
+        <WalletControl state={scenario === "wrongNetwork" ? "wrongNetwork" : "connected"} address={window.VS_MOCK.wallet.address} network="Sepolia" compact />
+      </div>}
+    >
+      {view === "dashboard" ? <Overview scenario={scenario} narrow={narrow} onDeposit={() => setDeposit(true)} onWithdraw={() => setWithdraw(true)} onVerify={() => setView("draws")} /> : null}
+      {view === "draws" ? <DrawsVerify narrow={narrow} /> : null}
+      {view === "pool" ? <PoolPublic narrow={narrow} onEnter={() => setView("dashboard")} /> : null}
+      {view === "privacy" ? <PrivacyCallout /> : null}
+    </ConsoleShell>
+    <DepositFlow open={deposit} onClose={() => setDeposit(false)} />
+    <WithdrawFlow open={withdraw} onClose={() => setWithdraw(false)} />
+    <div id="vs-demo">
+      <span>Prototype state</span>
+      <select value={scenario} onChange={(e) => setScenario(e.target.value)} aria-label="Prototype state">
+        {SCENARIOS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+      </select>
+    </div>
+  </>;
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script></body></html>

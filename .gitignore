@@ -1,0 +1,37 @@
+# Dependencies and generated output
+node_modules/
+**/node_modules/
+artifacts/
+**/artifacts/
+cache/
+**/cache/
+coverage/
+**/coverage/
+dist/
+**/dist/
+typechain-types/
+**/typechain-types/
+fhevmTemp/
+**/fhevmTemp/
+
+# Local environment and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.keystore
+*.mnemonic
+secrets/
+
+# Runtime and editor output
+*.log
+.DS_Store
+.idea/
+.vscode/
+.vite/
+.turbo/
+
+# Local deployment evidence that may contain transient RPC data
+deployments/local/
+evidence/private/

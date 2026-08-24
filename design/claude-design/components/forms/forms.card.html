@@ -1,0 +1,23 @@
+<!-- @dsCard group="Components" viewport="700x300" name="Forms" subtitle="Six-decimal amount entry, text, select" -->
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Forms</title>
+<link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>body{padding:18px 20px;background:var(--surface-page)}</style>
+</head><body><div id="root"></div>
+<script type="text/babel">
+const { AmountField, TextField, Select } = window.VeilSaveDesignSystem_484fa6;
+function FormsCard(){
+  const [a, setA] = React.useState("1200.500000");
+  return <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:22,alignItems:"start"}}>
+    <AmountField value={a} onChange={setA} max="2,400.000000" onMax={() => setA("2400.000000")} helper="Encrypted in your browser before it is submitted." />
+    <AmountField id="vs-amount-err" value="18.1234567" label="Amount" helper="" />
+    <TextField label="Epoch" value="42" mono icon="hash" onChange={()=>{}} />
+    <Select label="Range" value="30" options={[{value:"30",label:"Last 30 epochs"},{value:"all",label:"All epochs"}]} onChange={()=>{}} />
+  </div>;
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<FormsCard />);
+</script></body></html>

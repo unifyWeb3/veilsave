@@ -1,0 +1,61 @@
+<!-- @dsCard group="Components" viewport="700x400" name="Protocol" subtitle="Epoch timeline, stepper, slots, evidence, ticket, result" -->
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Protocol</title>
+<link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>body{padding:18px 20px;background:var(--surface-page)}</style>
+</head><body><div id="root"></div>
+<script type="text/babel">
+const { EpochTimeline, StatusStepper, SlotGrid, EvidenceRow, ProofBlock, TicketPanel, QueueItem, ResultState, ActivityItem, ConfidentialValue, Button } = window.VeilSaveDesignSystem_484fa6;
+const slots = ["mine","filled","filled","empty","filled","filled","empty","filled","filled","empty","filled","filled","empty","empty","filled","drawn"];
+function ProtoCard(){
+  return <div style={{display:"flex",flexDirection:"column",gap:20}}>
+    <EpochTimeline steps={[
+      {label:"Open",state:"done",meta:"MAR 3 · 09:00"},
+      {label:"Eligibility frozen",state:"done",meta:"BLOCK 5 812 004"},
+      {label:"Randomness requested",state:"done",meta:"REQ 0x9f2c…c1"},
+      {label:"Randomness fulfilled",state:"waiting",meta:"CHAINLINK VRF",detail:"Fulfilment usually lands within minutes of the request."},
+      {label:"Encrypted draw",state:"future"},
+      {label:"Winner finalized",state:"future"},
+    ]} />
+    <div style={{display:"grid",gridTemplateColumns:"minmax(0,1fr) minmax(0,1.15fr)",gap:24,alignItems:"start"}}>
+      <div style={{display:"flex",flexDirection:"column",gap:18}}>
+        <SlotGrid slots={slots} legend />
+        <StatusStepper steps={[
+          {label:"Encrypted locally",kind:"encrypting",status:"done"},
+          {label:"Approved in wallet",kind:"wallet",status:"done",meta:"0x4c…9a"},
+          {label:"Confirming on Sepolia",kind:"confirming",status:"active",detail:"2 of 3 confirmations."},
+          {label:"Token callback accounting",kind:"dependency",status:"future"},
+        ]} />
+      </div>
+      <div style={{display:"flex",flexDirection:"column",gap:16}}>
+        <ProofBlock title="Randomness" verdict="verified" summary="VRF request and fulfilment bound to epoch 41." collapsible={false}>
+          <EvidenceRow label="Request id" value="0x9f2c41a8b7e5d0c3" verified />
+          <EvidenceRow label="Fulfilment tx" value="0x41ba7730c92f18ee0a4b" verified href="#" />
+          <EvidenceRow label="Winner handle" value="0x7ab34e91c05f" kind="handle" note="Ciphertext reference — not an amount." />
+        </ProofBlock>
+        <ResultState variant="winner" epoch="41" address="0x8f21c4…04c7">
+          <ConfidentialValue state="aclPending" size="md" hideActions />
+        </ResultState>
+      </div>
+    </div>
+    <div style={{display:"grid",gridTemplateColumns:"minmax(0,1fr) minmax(0,1fr)",gap:24,alignItems:"start"}}>
+      <TicketPanel state="claimable" position={1} total={3} requestedAt="MAR 2 · 14:22" />
+      <div style={{display:"flex",flexDirection:"column",gap:8}}>
+        <ul style={{display:"grid",gap:8}}>
+          <QueueItem position={1} total={3} state="claimable" slot={4} requested="MAR 2 · 14:22" />
+          <QueueItem position={2} total={3} state="queued" slot={7} requested="MAR 2 · 16:08" mine />
+        </ul>
+        <ul>
+          <ActivityItem kind="deposit" title="Deposit confirmed" epoch="42" time="MAR 3 · 09:14" hash="0x4c8b21ff90" status="Confirmed" />
+          <ActivityItem kind="reveal" title="Balance revealed" time="MAR 3 · 09:20" local />
+        </ul>
+      </div>
+    </div>
+  </div>;
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<ProtoCard />);
+</script></body></html>

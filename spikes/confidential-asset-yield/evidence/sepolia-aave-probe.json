@@ -1,0 +1,41 @@
+{
+  "status": "PASS WITH CONDITIONS",
+  "network": "sepolia",
+  "chainId": "11155111",
+  "rpcProviderClass": "public JSON-RPC override or configured endpoint; no URL or secret recorded",
+  "walletAddress": "0x5FE738227ab4219bc317812a938dEf57489d444a",
+  "timestamp": "2026-08-16T17:08:43.152Z",
+  "addresses": {
+    "pool": "0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951",
+    "usdt": "0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0",
+    "aUsdt": "0xAF0F6e8b0Dc5c913bbF4d14c22B4E78Dd14310B6",
+    "faucet": "0xC959483DBa39aa9E78757139af0e9a2EDEb3f42D"
+  },
+  "codePresent": {
+    "pool": true,
+    "usdt": true,
+    "aUsdt": true,
+    "faucet": true
+  },
+  "observations": {
+    "symbol": "USDT",
+    "decimals": 6,
+    "aTokenUnderlying": "0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0",
+    "normalizedIncomeRay": "3520548140205349473705372014",
+    "aTokenTotalSupply": "4024253735855245",
+    "availableUnderlyingAtAToken": "6699882117",
+    "testWalletUsdtBalance": "0",
+    "faucet": {
+      "permissioned": false,
+      "usdtMintable": true,
+      "maximumWholeTokens": null,
+      "currentPeripheryInterfaceFullySupported": false
+    }
+  },
+  "writeRoute": "READY TO MINT TEST USDT THEN ATTEMPT",
+  "limitations": [
+    "This read-only probe does not prove supply, withdraw, or interest accrual.",
+    "A positive normalized income or reserve balance does not guarantee non-zero yield during a demo window.",
+    "The local adapter test uses sponsored mock accrual and is not organic yield evidence."
+  ]
+}
