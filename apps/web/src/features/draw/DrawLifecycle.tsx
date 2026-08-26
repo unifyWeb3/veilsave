@@ -31,6 +31,7 @@ import type { EpochSnapshot } from "../../protocol/useProtocolSnapshot";
 import { useEpochEvidence } from "../../protocol/useEpochEvidence";
 import type { OperationRecord } from "../../lib/operationStore";
 import { parseDrawRecoveryPublicId } from "./recovery";
+import { lifecycleGasLimit } from "./transactionOptions";
 
 const ZERO_HANDLE = `0x${"0".repeat(64)}` as Hex;
 const CONFIRMATIONS = 2;
@@ -288,12 +289,14 @@ export function DrawLifecycle({
       let hash: Hex | undefined;
       try {
         setStage("signing");
+        const gas = lifecycleGasLimit(action.key);
         hash = await walletClient.writeContract({
           account: address,
           address: poolAddress,
           abi: poolAbi,
           functionName: action.functionName,
           args: action.args,
+          ...(gas === undefined ? {} : { gas }),
         } as Parameters<typeof walletClient.writeContract>[0]);
         setPendingHash(hash);
         recordSubmittedOperation(
