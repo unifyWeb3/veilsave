@@ -184,7 +184,7 @@ export function DepositFlow({
         setPendingHash(null);
         setPendingKind(null);
         setNotice(
-          "Slot reserved. The 0.001 ETH bond remains public and refundable after a safe slot close.",
+          "Slot reserved. The 0.001 Sepolia ETH bond remains public and refundable after a safe slot close.",
         );
         setStage("editing");
       } catch (cause) {
@@ -637,7 +637,7 @@ export function DepositFlow({
         disabled={!walletReady || reservationPaused || occupiedCount >= 16}
         onClick={() => void reserveSlot()}
       >
-        Reserve a slot · 0.001 ETH
+        Reserve a slot · 0.001 Sepolia ETH
       </Button>
     );
 
@@ -685,7 +685,7 @@ export function DepositFlow({
             title="Reserve one public slot"
             safety="The bond is separate from confidential principal."
           >
-            The slot owner and 0.001 ETH refundable bond are public. Savings amounts remain
+            The slot owner and 0.001 Sepolia ETH refundable bond are public. Savings amounts remain
             encrypted.
           </StateBlock>
         )

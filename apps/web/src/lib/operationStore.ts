@@ -71,7 +71,10 @@ function readRecords(): OperationRecord[] {
 
 function writeRecords(records: OperationRecord[]): void {
   if (!canUseStorage()) return;
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(records.slice(0, 50).map(publicFieldsOnly)));
+  window.localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(records.slice(0, 50).map(publicFieldsOnly)),
+  );
   for (const listener of listeners) listener();
 }
 
@@ -127,9 +130,23 @@ export function subscribeOperations(listener: () => void): () => void {
 
 export function sanitizeError(error: unknown): string {
   if (error instanceof Error && error.message.length > 0) {
-    return error.message
+    const message = error.message;
+    if (
+      /RPC Request failed/i.test(message) ||
+      /chain is not available on free plan/i.test(message) ||
+      /eth_getTransactionCount/i.test(message)
+    ) {
+      return "The wallet's Sepolia RPC could not prepare the transaction. Change the wallet's Sepolia RPC endpoint, then retry. No transaction was submitted.";
+    }
+    if (/User rejected|User denied|rejected the request/i.test(message)) {
+      return "The wallet request was rejected. No transaction was submitted.";
+    }
+    return message
       .replace(/0x[0-9a-fA-F]{64,}/g, "[redacted]")
-      .replace(/(?:amount|value|balance|proof|ciphertext|handle)\s*[:=]\s*[^\s,;]+/gi, "$1: [redacted]");
+      .replace(
+        /(?:amount|value|balance|proof|ciphertext|handle)\s*[:=]\s*[^\s,;]+/gi,
+        "$1: [redacted]",
+      );
   }
   return "The operation could not be completed. No confidential value was stored.";
 }

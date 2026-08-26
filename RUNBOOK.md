@@ -22,11 +22,11 @@ Before any write:
 
 1. Confirm the RPC reports chain ID `11155111`.
 2. Confirm deployer balance is above `MIN_DEPLOYER_BALANCE_WEI`.
-3. Confirm every external address has runtime code.
+3. Confirm every callable external contract has runtime code. Zama's input-verification and decryption EIP-712 domain addresses are validated against the pinned SDK but are not required to contain bytecode.
 4. Confirm cUSDT and underlying both use six decimals and wrapper rate one.
 5. Confirm Zama inputs match the compiled `@fhevm/solidity 0.11.1` Sepolia configuration.
-6. Confirm the VRF wrapper exposes `link()` and native request pricing.
-7. Confirm the Safe is the reviewed bootstrap authority and guardian.
+6. Confirm the VRF wrapper exposes `link()` and returns a positive native request quote when simulated with the current Sepolia gas price. A bare `eth_call` can report zero because the wrapper reads `tx.gasprice`.
+7. Confirm the Safe is deployed on Sepolia with exactly three distinct owners and threshold two, and is the reviewed bootstrap authority and guardian.
 8. Run `pnpm check` and `pnpm test:spikes` from the reviewed source revision.
 
 ## 2. Deployment and one-time bootstrap

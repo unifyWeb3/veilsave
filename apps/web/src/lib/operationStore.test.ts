@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { listOperations, saveOperation, type OperationRecord } from "./operationStore";
+import {
+  listOperations,
+  sanitizeError,
+  saveOperation,
+  type OperationRecord,
+} from "./operationStore";
 
 describe("privacy-safe operation storage", () => {
   it("persists only the public recovery allowlist", () => {
@@ -59,5 +64,22 @@ describe("privacy-safe operation storage", () => {
     );
 
     expect(listOperations()).toEqual([]);
+  });
+
+  it("prioritizes a wallet RPC failure over nested rejection text", () => {
+    const message = sanitizeError(
+      new Error(
+        "RPC Request failed. method: eth_getTransactionCount Details: chain is not available on free plan. User rejected the request.",
+      ),
+    );
+    expect(message).toMatch(/wallet's Sepolia RPC/i);
+    expect(message).toMatch(/No transaction was submitted/i);
+    expect(message).not.toMatch(/wallet request was rejected/i);
+  });
+
+  it("reports an actual wallet rejection without raw request details", () => {
+    expect(sanitizeError(new Error("User rejected the request. Request Arguments: secret"))).toBe(
+      "The wallet request was rejected. No transaction was submitted.",
+    );
   });
 });

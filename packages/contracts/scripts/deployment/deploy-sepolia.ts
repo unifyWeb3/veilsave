@@ -164,12 +164,35 @@ async function main(): Promise<void> {
     ["Zama FHE executor", fheExecutor],
     ["Zama KMS verifier", kmsVerifier],
     ["Zama input verifier", inputVerifier],
-    ["Zama input verification verifier", inputVerificationVerifier],
-    ["Zama decryption verifier", decryptionVerifier],
     ["Chainlink VRF coordinator", vrfCoordinator],
     ["Chainlink VRF wrapper", vrfWrapper],
   ] as const) {
     await requireCode(label, address);
+  }
+
+  // These are EIP-712 verifier-domain addresses from the pinned Zama SDK,
+  // not callable contracts. Their exact SDK values are checked above; bytecode
+  // is intentionally not required at these addresses.
+
+  const safeContract: any = new Contract(
+    safe,
+    [
+      "function getThreshold() view returns (uint256)",
+      "function getOwners() view returns (address[])",
+    ],
+    hre.ethers.provider,
+  );
+  const safeThreshold = await safeContract.getThreshold();
+  const safeOwners = (await safeContract.getOwners()) as string[];
+  if (safeThreshold !== 2n || safeOwners.length !== 3) {
+    throw new Error("SAFE_ADDRESS must be a deployed Sepolia 2-of-3 Safe");
+  }
+  const normalizedSafeOwners = safeOwners.map((owner) => getAddress(owner));
+  if (
+    normalizedSafeOwners.some((owner) => owner === ZeroAddress) ||
+    new Set(normalizedSafeOwners).size !== 3
+  ) {
+    throw new Error("SAFE_ADDRESS must have three distinct non-zero owners");
   }
 
   const token: any = new Contract(
@@ -197,6 +220,7 @@ async function main(): Promise<void> {
     [
       "function link() view returns (address)",
       "function calculateRequestPriceNative(uint32,uint32) view returns (uint256)",
+      "function estimateRequestPriceNative(uint32,uint32,uint256) view returns (uint256)",
     ],
     hre.ethers.provider,
   );
@@ -215,7 +239,25 @@ async function main(): Promise<void> {
     throw new Error("Zama executor input-verifier getter does not match configured input verifier");
   }
   await wrapper.link();
-  await wrapper.calculateRequestPriceNative(100_000, 1);
+  // Chainlink's live quote reads tx.gasprice. A bare eth_call supplies zero,
+  // which can make a healthy wrapper appear to quote zero. Use the current
+  // Sepolia gas price for both the explicit estimator and the simulated quote.
+  const feeData = await hre.ethers.provider.getFeeData();
+  const requestGasPrice = feeData.gasPrice;
+  if (!requestGasPrice || requestGasPrice <= 0n) {
+    throw new Error("Sepolia RPC did not provide a positive gas price for VRF preflight");
+  }
+  const estimatedNativeQuote = await wrapper.estimateRequestPriceNative(
+    100_000,
+    1,
+    requestGasPrice,
+  );
+  const nativeQuote = await wrapper.calculateRequestPriceNative(100_000, 1, {
+    gasPrice: requestGasPrice,
+  });
+  if (estimatedNativeQuote <= 0n || nativeQuote <= 0n) {
+    throw new Error("Chainlink VRF wrapper returned a non-positive native request quote");
+  }
 
   const poolArtifact = await hre.artifacts.readArtifact("ConfidentialPrizePool");
   const poolRuntimeBytes = (poolArtifact.deployedBytecode.length - 2) / 2;

@@ -8,7 +8,7 @@ Do not publish a manifest containing placeholder or zero addresses. Deployment-s
 
 1. Populate the deployment-only values from `.env.example` and load them into the shell. Never expose `DEPLOYER_PRIVATE_KEY` through a `VITE_*` variable.
 2. Set `SOURCE_COMMIT` to the reviewed source revision and `SAFE_ADDRESS` to the deployed 2-of-3 Safe that will be bootstrap authority, pause guardian, timelock proposer, and canceller.
-3. Revalidate every external address against current official sources and onchain code. The deployment script also checks the cUSDT underlying, six-decimal/unit-rate boundary, Zama executor/input-verifier binding, VRF wrapper interface, and deployer balance.
+3. Revalidate every external address against current official sources. The deployment script checks runtime code for callable contracts, validates Zama's EIP-712 verifier domains against the pinned SDK, proves the Safe is 2-of-3, and checks the cUSDT underlying, six-decimal/unit-rate boundary, Zama executor/input-verifier binding, positive gas-price-aware VRF quote, and deployer balance.
 4. Run `pnpm --filter @veilsave/contracts deploy:sepolia`.
 5. Review `deployment-draft.json` and execute `safe-bootstrap-batch.json` from the configured Safe in its exact bind-controller, bind-VRF, activate-pool order.
 6. Set `DEPLOYMENT_DRAFT_PATH` to the generated draft and run `pnpm --filter @veilsave/contracts deploy:audit`.
