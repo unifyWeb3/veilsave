@@ -239,7 +239,7 @@ The security/property/invariant suite passes locally. It covers conservation, pr
 | Product/architecture alignment | PASS locally | Frozen docs mapped to contracts/frontend; no drift identified |
 | Local security/invariants | PASS | 55 production contract tests + 56 spike tests |
 | Local 16-slot FHE budget | PASS | `14,927,246` global / `3,448,096` depth / target margins |
-| Sepolia deployment and source verification | BLOCKED | Credentials, current external inputs, funded deployer, Safe, deployment, audit, Etherscan verification |
+| Sepolia deployment and source verification | BLOCKED | Replace the non-contract `SAFE_ADDRESS`, then deploy, bootstrap, audit, and verify sources |
 | Live winner ACL/decryption | BLOCKED | Stable relayer/KMS and fresh production deployment |
 | Live final HCU/depth/gas | PENDING | Production-shaped deployed draw measurement |
 | Live immediate withdrawal | PENDING | Sepolia transaction and reconciliation evidence |
