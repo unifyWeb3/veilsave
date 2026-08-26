@@ -219,6 +219,10 @@ async function main(): Promise<void> {
     vrfWrapper,
     [
       "function link() view returns (address)",
+      "function linkNativeFeed() view returns (address)",
+      "function s_vrfCoordinator() view returns (address)",
+      "function s_configured() view returns (bool)",
+      "function s_disabled() view returns (bool)",
       "function calculateRequestPriceNative(uint32,uint32) view returns (uint256)",
       "function estimateRequestPriceNative(uint32,uint32,uint256) view returns (uint256)",
     ],
@@ -238,7 +242,19 @@ async function main(): Promise<void> {
   if (getAddress(await executor.getInputVerifierAddress()) !== inputVerifier) {
     throw new Error("Zama executor input-verifier getter does not match configured input verifier");
   }
-  await wrapper.link();
+  const linkAddress = getAddress(await wrapper.link());
+  const linkNativeFeedAddress = getAddress(await wrapper.linkNativeFeed());
+  if (getAddress(await wrapper.s_vrfCoordinator()) !== vrfCoordinator) {
+    throw new Error("Chainlink VRF wrapper is not bound to the configured coordinator");
+  }
+  if (!(await wrapper.s_configured())) {
+    throw new Error("Chainlink VRF wrapper is not configured");
+  }
+  if (await wrapper.s_disabled()) {
+    throw new Error("Chainlink VRF wrapper is disabled");
+  }
+  await requireCode("Chainlink LINK token", linkAddress);
+  await requireCode("Chainlink LINK/native price feed", linkNativeFeedAddress);
   // Chainlink's live quote reads tx.gasprice. A bare eth_call supplies zero,
   // which can make a healthy wrapper appear to quote zero. Use the current
   // Sepolia gas price for both the explicit estimator and the simulated quote.
@@ -460,7 +476,12 @@ async function main(): Promise<void> {
       poolVrfAdapter: vrfRecord,
       confidentialPrizePool: poolRecord,
     },
-    vrfFunding: { amountWei: fundingWei.toString(), transaction: fundingTransaction },
+    vrfFunding: {
+      amountWei: fundingWei.toString(),
+      transaction: fundingTransaction,
+      preflightNativeQuoteWei: nativeQuote.toString(),
+      preflightGasPriceWei: requestGasPrice.toString(),
+    },
     safeBootstrapTransactions: safeTransactions,
   };
 

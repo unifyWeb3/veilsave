@@ -8,7 +8,7 @@ This report records the current implementation and evidence state. It does not p
 
 The frozen VeilSave specification is implemented across four Solidity contracts, a protocol-facing React frontend, deployment tooling, shared manifest types, recovery state, and release documentation. The implementation preserves the fixed 16-slot architecture, seven-day epochs, separate Chainlink VRF and FHE draw transactions, winner-only prize ACL, aggregate public strategy settlement, deterministic TEST YIELD fallback, immediate withdrawals, and strict request-time FIFO.
 
-The local production gate is green. The project is not yet ready for final hackathon submission because no active Sepolia deployment manifest or credentials are present in the current environment. The remaining gates require external network state and a funded/reviewed deployment authority.
+The local production gate is green. The project is not yet ready for final hackathon submission because no active Sepolia deployment manifest exists and the configured bootstrap Safe is not deployed at its supplied address. The deployment credentials and external Sepolia inputs are present and have passed read-only preflight; the remaining gates require a real reviewed Safe, deployment, and live protocol evidence.
 
 ## What Was Built
 
@@ -78,7 +78,17 @@ The deployment script will record the following after a real Sepolia deployment 
 
 ## Deployment Transactions
 
-Not available. M11 deployment rehearsal passes locally, but the current environment has no `SEPOLIA_RPC_URL`, `DEPLOYER_PRIVATE_KEY`, `ETHERSCAN_API_KEY`, Safe address, token inputs, Zama verifier inputs, or VRF addresses configured.
+Not available. M11 deployment rehearsal passes locally. The current deployment environment contains the required RPC, deployer, Etherscan, token, Zama, and VRF inputs; the configured `SAFE_ADDRESS` currently has no Sepolia runtime code, so the deployment script aborts before the first application deployment transaction.
+
+### Read-only Sepolia preflight (2026-08-26)
+
+- RPC chain ID: `11155111` (PASS).
+- Deployer address: `0x5FE738227ab4219bc317812a938dEf57489d444a` (public address; do not treat this as a secret).
+- Deployer balance: `7.489172139675241547 Sepolia ETH` at preflight (PASS).
+- Official Sepolia cUSDT wrapper/underlying, six-decimal/unit-rate boundary, Zama callable addresses, and pinned SDK verifier domains: PASS.
+- Chainlink wrapper: configured and enabled; gas-price-aware native quote returned positive (`~0.00028 Sepolia ETH` for the 100,000-gas/one-word configuration).
+- Configured Safe `0x429F46ADdDe54E4b05493C87d121efb75e3e9711`: **BLOCKED — no runtime bytecode**.
+- Deployment command was run in fail-fast mode and exited before deploying any VeilSave contract or broadcasting an application deployment transaction.
 
 The required live sequence is documented in [RUNBOOK.md](../../RUNBOOK.md): deploy, execute Safe bind/bind/activate, audit bindings and roles, verify source, publish an active manifest, and then run the complete acceptance flow.
 
