@@ -49,6 +49,7 @@ The existing M12 frontend was retained and integrated with `design/claude-design
 - public evidence links and technically honest verification limitations;
 - reload-safe operation recovery with duplicate-write protection;
 - asynchronous encryption, transaction, VRF, FHE, ACL, relayer, RPC, strategy, and claim states;
+- the validated `500,000` explicit gas bound on the Sepolia VRF request path, with FHE draw gas kept separate;
 - responsive desktop rail/mobile bottom navigation;
 - shared sheet focus trap, Escape close, body scroll lock, and focus restoration;
 - lazy loading for the console and Zama SDK/FHE assets.
