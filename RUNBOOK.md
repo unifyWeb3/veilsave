@@ -29,6 +29,18 @@ Before any write:
 7. Confirm the Safe is deployed on Sepolia with exactly three distinct owners and threshold two, and is the reviewed bootstrap authority and guardian.
 8. Run `pnpm check` and `pnpm test:spikes` from the reviewed source revision.
 
+### Safe prerequisite
+
+Create the bootstrap Safe on **Ethereum Sepolia** before running the deployment command:
+
+1. Open the official Safe web app and select Ethereum Sepolia.
+2. Create a new Safe with three distinct owner addresses and a threshold of `2`.
+3. Keep control of at least two owner wallets; the deployment account does not need to be a Safe owner.
+4. Deploy the Safe and confirm its address has runtime bytecode on Sepolia.
+5. Replace only `SAFE_ADDRESS` in the private `.env` with that deployed address. Do not add Safe-owner private keys to this repository or to browser `VITE_*` variables.
+
+The deployment script independently checks the chain, bytecode, owner count, owner uniqueness, and threshold. An EOA, counterfactual address, singleton address, or an address from another network is rejected before any VeilSave contract is deployed.
+
 ## 2. Deployment and one-time bootstrap
 
 Run from the repository root after loading deployment-only variables into the shell:
