@@ -46,7 +46,7 @@ export const poolAbi = parseAbi([
   "function finalizeWithdrawalRouting(uint64 requestId, bool hasRemainder, bytes proof)",
   "function serviceFifoHead() returns (uint64 withdrawalId)",
   "function finalizeWithdrawalCompletion(uint64 requestId, bool isZero, bytes proof)",
-  "function beginInvestmentSettlement(uint64 settlementId)",
+  "function beginInvestmentSettlement(uint64 publicCap)",
   "function beginWithdrawalSettlement(uint64 publicCap)",
   "function beginYieldHarvest(uint64 publicCap)",
   "event EpochOpened(uint64 indexed epochId, uint64 openedAt, uint64 closesAt)",

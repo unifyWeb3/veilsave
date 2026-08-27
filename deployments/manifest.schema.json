@@ -56,12 +56,14 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
+        "timelockController",
         "confidentialPrizePool",
         "poolVrfAdapter",
         "settlementController",
         "deterministicTestYieldVault"
       ],
       "properties": {
+        "timelockController": { "$ref": "#/$defs/contract" },
         "confidentialPrizePool": { "$ref": "#/$defs/contract" },
         "poolVrfAdapter": { "$ref": "#/$defs/contract" },
         "settlementController": { "$ref": "#/$defs/contract" },
@@ -84,7 +86,9 @@
         "gatewayChainId",
         "relayerUrl",
         "vrfCoordinator",
-        "vrfWrapper"
+        "vrfWrapper",
+        "runtimeCodeHashes",
+        "proxyImplementations"
       ],
       "properties": {
         "confidentialToken": { "$ref": "#/$defs/address" },
@@ -99,7 +103,54 @@
         "gatewayChainId": { "type": "integer", "minimum": 1 },
         "relayerUrl": { "type": "string", "format": "uri" },
         "vrfCoordinator": { "$ref": "#/$defs/address" },
-        "vrfWrapper": { "$ref": "#/$defs/address" }
+        "vrfWrapper": { "$ref": "#/$defs/address" },
+        "runtimeCodeHashes": { "$ref": "#/$defs/externalCodeHashes" },
+        "proxyImplementations": { "$ref": "#/$defs/proxyImplementations" }
+      }
+    },
+    "runtimeCodeReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["address", "runtimeCodeHash"],
+      "properties": {
+        "address": { "$ref": "#/$defs/address" },
+        "runtimeCodeHash": { "$ref": "#/$defs/hash" }
+      }
+    },
+    "proxyImplementations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["confidentialToken", "acl", "fheExecutor", "kmsVerifier", "inputVerifier"],
+      "properties": {
+        "confidentialToken": { "$ref": "#/$defs/runtimeCodeReference" },
+        "acl": { "$ref": "#/$defs/runtimeCodeReference" },
+        "fheExecutor": { "$ref": "#/$defs/runtimeCodeReference" },
+        "kmsVerifier": { "$ref": "#/$defs/runtimeCodeReference" },
+        "inputVerifier": { "$ref": "#/$defs/runtimeCodeReference" }
+      }
+    },
+    "externalCodeHashes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "confidentialToken",
+        "underlyingToken",
+        "acl",
+        "fheExecutor",
+        "kmsVerifier",
+        "inputVerifier",
+        "vrfCoordinator",
+        "vrfWrapper"
+      ],
+      "properties": {
+        "confidentialToken": { "$ref": "#/$defs/hash" },
+        "underlyingToken": { "$ref": "#/$defs/hash" },
+        "acl": { "$ref": "#/$defs/hash" },
+        "fheExecutor": { "$ref": "#/$defs/hash" },
+        "kmsVerifier": { "$ref": "#/$defs/hash" },
+        "inputVerifier": { "$ref": "#/$defs/hash" },
+        "vrfCoordinator": { "$ref": "#/$defs/hash" },
+        "vrfWrapper": { "$ref": "#/$defs/hash" }
       }
     },
     "asset": {
@@ -155,9 +206,19 @@
     "governance": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["safe", "timelock", "guardian", "timelockOpenExecutor", "timelockSelfAdmin"],
+      "required": [
+        "safe",
+        "safeRuntimeCodeHash",
+        "safeSingleton",
+        "timelock",
+        "guardian",
+        "timelockOpenExecutor",
+        "timelockSelfAdmin"
+      ],
       "properties": {
         "safe": { "$ref": "#/$defs/address" },
+        "safeRuntimeCodeHash": { "$ref": "#/$defs/hash" },
+        "safeSingleton": { "$ref": "#/$defs/runtimeCodeReference" },
         "timelock": { "$ref": "#/$defs/address" },
         "guardian": { "$ref": "#/$defs/address" },
         "timelockOpenExecutor": { "const": true },

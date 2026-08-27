@@ -4,6 +4,9 @@ import path from "node:path";
 import { Contract, ZeroAddress, getAddress, keccak256 } from "ethers";
 import * as hre from "hardhat";
 
+const EIP1967_IMPLEMENTATION_SLOT =
+  "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc";
+
 type Draft = {
   chainId: number;
   external: Record<string, string>;
@@ -131,7 +134,11 @@ async function main(): Promise<void> {
   sameAddress(await pool.bootstrapAuthority(), ZeroAddress, "pool bootstrap authority");
   sameAddress(await controller.bootstrapAuthority(), ZeroAddress, "controller bootstrap authority");
   sameAddress(await vrf.bootstrapAuthority(), ZeroAddress, "VRF bootstrap authority");
-  sameBigInt(await pool.currentEpochId(), 1n, "current epoch");
+  const currentEpochId = BigInt(await pool.currentEpochId());
+  if (currentEpochId < 1n) throw new Error("Pool has no canonical epoch");
+  const epoch1 = await pool.epochPublic(1);
+  if (BigInt(epoch1.openedAt) === 0n) throw new Error("Epoch 1 was not opened at activation");
+  sameBigInt(BigInt(epoch1.closesAt) - BigInt(epoch1.openedAt), 604_800n, "epoch 1 duration");
   sameBigInt(await pool.PARTICIPANT_CAPACITY(), 16n, "participant capacity");
   sameBigInt(await pool.epochDuration(), 604_800n, "epoch duration");
   sameBigInt(await pool.requestTimeout(), 86_400n, "request timeout");
@@ -151,6 +158,83 @@ async function main(): Promise<void> {
   );
 
   const safe = getAddress(draft.governance.safe);
+  const safeCode = await hre.ethers.provider.getCode(safe);
+  if (safeCode === "0x") throw new Error("Configured Safe has no Sepolia runtime code");
+  const safeRuntimeCodeHash = keccak256(safeCode);
+  const safeSingletonWord = await hre.ethers.provider.getStorage(safe, 0n);
+  const safeSingleton = getAddress(`0x${safeSingletonWord.slice(-40)}`);
+  const safeSingletonCode = await hre.ethers.provider.getCode(safeSingleton);
+  if (safeSingletonCode === "0x") throw new Error("Safe singleton has no Sepolia runtime code");
+  const safeSingletonRuntimeCodeHash = keccak256(safeSingletonCode);
+  const safeContract: any = new Contract(
+    safe,
+    [
+      "function getThreshold() view returns (uint256)",
+      "function getOwners() view returns (address[])",
+    ],
+    hre.ethers.provider,
+  );
+  const safeThreshold = BigInt(await safeContract.getThreshold());
+  const safeOwners = ((await safeContract.getOwners()) as string[]).map(getAddress);
+  if (
+    safeThreshold !== 2n ||
+    safeOwners.length !== 3 ||
+    safeOwners.some((owner) => owner === ZeroAddress) ||
+    new Set(safeOwners).size !== 3
+  ) {
+    throw new Error("Configured Safe is not a deployed Sepolia 2-of-3 Safe");
+  }
+  const externalCodeChecks: Record<
+    string,
+    { address: string; runtimeCodeHash: string; runtimeBytes: number }
+  > = {};
+  for (const [name, address] of Object.entries({
+    confidentialToken: draft.external.confidentialToken!,
+    underlyingToken: draft.external.underlyingToken!,
+    acl: draft.external.acl!,
+    fheExecutor: draft.external.fheExecutor!,
+    kmsVerifier: draft.external.kmsVerifier!,
+    inputVerifier: draft.external.inputVerifier!,
+    vrfCoordinator: draft.external.vrfCoordinator!,
+    vrfWrapper: draft.external.vrfWrapper!,
+  })) {
+    const normalizedAddress = getAddress(address);
+    const code = await hre.ethers.provider.getCode(normalizedAddress);
+    if (code === "0x") throw new Error(`${name} has no Sepolia runtime code`);
+    externalCodeChecks[name] = {
+      address: normalizedAddress,
+      runtimeCodeHash: keccak256(code),
+      runtimeBytes: (code.length - 2) / 2,
+    };
+  }
+  const proxyImplementationChecks: Record<
+    string,
+    { proxy: string; implementation: string; runtimeCodeHash: string; runtimeBytes: number }
+  > = {};
+  for (const key of [
+    "confidentialToken",
+    "acl",
+    "fheExecutor",
+    "kmsVerifier",
+    "inputVerifier",
+  ] as const) {
+    const proxy = getAddress(draft.external[key]!);
+    const implementationWord = await hre.ethers.provider.getStorage(
+      proxy,
+      EIP1967_IMPLEMENTATION_SLOT,
+    );
+    const implementation = getAddress(`0x${implementationWord.slice(-40)}`);
+    if (implementation === ZeroAddress)
+      throw new Error(`${key} proxy has no EIP-1967 implementation`);
+    const code = await hre.ethers.provider.getCode(implementation);
+    if (code === "0x") throw new Error(`${key} implementation has no Sepolia runtime code`);
+    proxyImplementationChecks[key] = {
+      proxy,
+      implementation,
+      runtimeCodeHash: keccak256(code),
+      runtimeBytes: (code.length - 2) / 2,
+    };
+  }
   const proposerRole = await timelock.PROPOSER_ROLE();
   const cancellerRole = await timelock.CANCELLER_ROLE();
   const executorRole = await timelock.EXECUTOR_ROLE();
@@ -185,10 +269,17 @@ async function main(): Promise<void> {
     deploymentDraft: draftPath,
     status: "PASS",
     codeChecks,
+    externalCodeChecks,
+    proxyImplementationChecks,
     bindingsLocked: true,
     bootstrapAuthoritiesCleared: true,
     governance: {
       safe,
+      safeRuntimeCodeHash,
+      safeSingleton,
+      safeSingletonRuntimeCodeHash,
+      safeThreshold: safeThreshold.toString(),
+      safeOwnerCount: safeOwners.length,
       timelock: getAddress(timelockRecord.address),
       minDelaySeconds: (await timelock.getMinDelay()).toString(),
       safeProposer: true,
@@ -198,7 +289,9 @@ async function main(): Promise<void> {
     },
     pool: {
       active: true,
-      currentEpochId: (await pool.currentEpochId()).toString(),
+      currentEpochId: currentEpochId.toString(),
+      epoch1OpenedAt: BigInt(epoch1.openedAt).toString(),
+      epoch1ClosesAt: BigInt(epoch1.closesAt).toString(),
       participantCapacity: (await pool.PARTICIPANT_CAPACITY()).toString(),
       runtimeBytes: codeChecks.confidentialPrizePool!.runtimeBytes,
     },

@@ -10,6 +10,11 @@ export interface ContractDeployment {
   verifiedSourceUrl: string;
 }
 
+export interface RuntimeCodeReference {
+  address: Address;
+  runtimeCodeHash: Hex;
+}
+
 export interface VeilSaveDeploymentManifest {
   schemaVersion: 1;
   product: "VeilSave";
@@ -19,6 +24,7 @@ export interface VeilSaveDeploymentManifest {
   chainId: 11155111;
   deploymentBlock: number;
   contracts: {
+    timelockController: ContractDeployment;
     confidentialPrizePool: ContractDeployment;
     poolVrfAdapter: ContractDeployment;
     settlementController: ContractDeployment;
@@ -38,6 +44,23 @@ export interface VeilSaveDeploymentManifest {
     relayerUrl: string;
     vrfCoordinator: Address;
     vrfWrapper: Address;
+    runtimeCodeHashes: {
+      confidentialToken: Hex;
+      underlyingToken: Hex;
+      acl: Hex;
+      fheExecutor: Hex;
+      kmsVerifier: Hex;
+      inputVerifier: Hex;
+      vrfCoordinator: Hex;
+      vrfWrapper: Hex;
+    };
+    proxyImplementations: {
+      confidentialToken: RuntimeCodeReference;
+      acl: RuntimeCodeReference;
+      fheExecutor: RuntimeCodeReference;
+      kmsVerifier: RuntimeCodeReference;
+      inputVerifier: RuntimeCodeReference;
+    };
   };
   asset: {
     symbol: "cUSDT";
@@ -65,6 +88,8 @@ export interface VeilSaveDeploymentManifest {
   };
   governance: {
     safe: Address;
+    safeRuntimeCodeHash: Hex;
+    safeSingleton: RuntimeCodeReference;
     timelock: Address;
     guardian: Address;
     timelockOpenExecutor: true;
