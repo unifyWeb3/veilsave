@@ -95,6 +95,19 @@ describe("DeploymentProvider manifest gate", () => {
     }
   });
 
+  it("stays loading (not error) while candidate verification is still running", async () => {
+    stubFetch(async () => ({ ok: false, status: 404, json: async () => ({}) }));
+    mockVerifyManifestCode.mockReturnValue(new Promise(() => {}));
+    try {
+      const handle = renderProvider();
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      expect(handle.latest().status).toBe("loading");
+      expect(handle.latest().error).toBeNull();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it("reports error when both the ACTIVE fetch and candidate verification fail", async () => {
     stubFetch(async () => ({ ok: false, status: 404, json: async () => ({}) }));
     mockVerifyManifestCode.mockRejectedValue(new Error("Deployment bytecode does not match"));

@@ -107,6 +107,10 @@ export function DeploymentProvider({
     status = "read-only";
     manifest = candidate;
     source = "candidate";
+  } else if (activeQuery.error && candidate && publicClient && !codeQuery.isError) {
+    // The ACTIVE manifest is unreachable, but the candidate path is still
+    // verifying. Stay in loading instead of flashing a terminal error.
+    status = "loading";
   } else if (activeQuery.error) {
     status = "error";
     error = errorMessage(codeQuery.error ?? activeQuery.error);
