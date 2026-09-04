@@ -3,7 +3,7 @@ import { usePublicClient } from "wagmi";
 import type { Address, Hex } from "viem";
 
 import { poolAbi, settlementAbi, vrfAbi } from "../config/abis";
-import { useDeployment } from "../providers/DeploymentProvider";
+import { canReadDeployment, useDeployment } from "../providers/DeploymentProvider";
 import type { PublicEventLog } from "./eventRange";
 
 export type PublicHistoryKind =
@@ -79,7 +79,7 @@ export function usePublicHistory(limit = 24) {
 
   return useQuery({
     queryKey: ["veilsave", "public-history", manifest?.sourceCommit, limit],
-    enabled: Boolean(publicClient && manifest && deploymentStatus === "ready"),
+    enabled: Boolean(publicClient && manifest && canReadDeployment(deploymentStatus)),
     staleTime: 15_000,
     refetchInterval: 30_000,
     queryFn: async (): Promise<PublicHistoryEntry[]> => {
@@ -88,9 +88,11 @@ export function usePublicHistory(limit = 24) {
       const vrf = manifest.contracts.poolVrfAdapter.address as Address;
       const controller = manifest.contracts.settlementController.address as Address;
       const readEvents = (address: Address, abi: unknown, eventName: string) =>
-        (publicClient as unknown as {
-          getContractEvents: (parameters: Record<string, unknown>) => Promise<readonly unknown[]>;
-        }).getContractEvents({
+        (
+          publicClient as unknown as {
+            getContractEvents: (parameters: Record<string, unknown>) => Promise<readonly unknown[]>;
+          }
+        ).getContractEvents({
           address,
           abi,
           eventName,

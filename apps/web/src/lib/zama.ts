@@ -1,7 +1,11 @@
 import { bytesToHex } from "viem";
 
 import type { VeilSaveDeploymentManifest } from "@veilsave/shared";
-import type { FhevmInstance, HandleContractPair, PublicDecryptResults } from "@zama-fhe/relayer-sdk/web";
+import type {
+  FhevmInstance,
+  HandleContractPair,
+  PublicDecryptResults,
+} from "@zama-fhe/relayer-sdk/web";
 
 import type { RuntimeConfig } from "../config/runtime";
 
@@ -14,7 +18,11 @@ export interface EncryptedInput {
 
 export interface ZamaClient {
   instance: FhevmInstance;
-  encryptUint64(contractAddress: `0x${string}`, userAddress: `0x${string}`, value: bigint): Promise<EncryptedInput>;
+  encryptUint64(
+    contractAddress: `0x${string}`,
+    userAddress: `0x${string}`,
+    value: bigint,
+  ): Promise<EncryptedInput>;
   publicDecrypt(handles: `0x${string}`[]): Promise<PublicDecryptResults>;
   createUserDecryptRequest(
     handles: `0x${string}`[],
@@ -36,18 +44,29 @@ export interface UserDecryptRequest {
   complete(signature: string): Promise<Readonly<Record<string, unknown>>>;
 }
 
-function assertSepoliaConfig(manifest: VeilSaveDeploymentManifest, sdk: typeof import("@zama-fhe/relayer-sdk/web")) {
+function assertSepoliaConfig(
+  manifest: Pick<VeilSaveDeploymentManifest, "external">,
+  sdk: typeof import("@zama-fhe/relayer-sdk/web"),
+) {
   const expected = sdk.SepoliaConfig;
   const checks: Array<[string, string, string]> = [
     ["aclContractAddress", manifest.external.acl, expected.aclContractAddress],
     ["kmsContractAddress", manifest.external.kmsVerifier, expected.kmsContractAddress],
-    ["inputVerifierContractAddress", manifest.external.inputVerifier, expected.inputVerifierContractAddress],
+    [
+      "inputVerifierContractAddress",
+      manifest.external.inputVerifier,
+      expected.inputVerifierContractAddress,
+    ],
     [
       "verifyingContractAddressInputVerification",
       manifest.external.inputVerificationVerifier,
       expected.verifyingContractAddressInputVerification,
     ],
-    ["verifyingContractAddressDecryption", manifest.external.decryptionVerifier, expected.verifyingContractAddressDecryption],
+    [
+      "verifyingContractAddressDecryption",
+      manifest.external.decryptionVerifier,
+      expected.verifyingContractAddressDecryption,
+    ],
   ];
   for (const [label, actual, expectedValue] of checks) {
     if (actual.toLowerCase() !== expectedValue.toLowerCase()) {
@@ -61,12 +80,14 @@ function assertSepoliaConfig(manifest: VeilSaveDeploymentManifest, sdk: typeof i
 
 export async function loadZamaClient(
   runtime: RuntimeConfig,
-  manifest: VeilSaveDeploymentManifest,
+  manifest: Pick<VeilSaveDeploymentManifest, "external">,
 ): Promise<ZamaClient> {
   if (typeof window === "undefined") throw new Error("Zama SDK requires a browser context");
   const sdk = await import("@zama-fhe/relayer-sdk/web");
   assertSepoliaConfig(manifest, sdk);
-  const initialized = await sdk.initSDK({ thread: Math.min(4, navigator.hardwareConcurrency || 1) });
+  const initialized = await sdk.initSDK({
+    thread: Math.min(4, navigator.hardwareConcurrency || 1),
+  });
   if (!initialized) throw new Error("Zama local encryption runtime could not initialize");
 
   const instance = await sdk.createInstance({
@@ -88,7 +109,13 @@ export async function loadZamaClient(
     async publicDecrypt(handles) {
       return instance.publicDecrypt(handles);
     },
-    createUserDecryptRequest(handles, contractAddresses, userAddress, startTimestamp, durationDays) {
+    createUserDecryptRequest(
+      handles,
+      contractAddresses,
+      userAddress,
+      startTimestamp,
+      durationDays,
+    ) {
       const keypair = instance.generateKeypair();
       const typed = instance.createEIP712(
         keypair.publicKey,
@@ -106,10 +133,12 @@ export async function loadZamaClient(
         typedData: typed as unknown as Record<string, unknown>,
         async complete(signature) {
           const result = await instance.userDecrypt(
-            handles.map((handle, index): HandleContractPair => ({
-              handle,
-              contractAddress: contractAddresses[index]!,
-            })),
+            handles.map(
+              (handle, index): HandleContractPair => ({
+                handle,
+                contractAddress: contractAddresses[index]!,
+              }),
+            ),
             keypair.privateKey,
             keypair.publicKey,
             signature,

@@ -192,7 +192,15 @@ export function validateManifest(input: unknown): VeilSaveDeploymentManifest {
 }
 
 export async function fetchDeploymentManifest(url: string): Promise<VeilSaveDeploymentManifest> {
-  const response = await fetch(url, { cache: "no-store" });
+  let response: Response;
+  try {
+    response = await fetch(url, { cache: "no-store" });
+  } catch (cause) {
+    const detail = cause instanceof Error ? cause.message : "network request failed";
+    throw new Error(
+      `Deployment manifest download failed (RPC/manifest endpoint): ${url} — ${detail}`,
+    );
+  }
   if (!response.ok) throw new Error(`Deployment manifest request failed (${response.status})`);
   return validateManifest(await response.json());
 }
@@ -207,7 +215,7 @@ export interface CodeHashCheck {
 
 export async function verifyManifestCode(
   publicClient: PublicClient,
-  manifest: VeilSaveDeploymentManifest,
+  manifest: Pick<VeilSaveDeploymentManifest, "contracts" | "external" | "governance">,
 ): Promise<CodeHashCheck[]> {
   const checks: CodeHashCheck[] = [];
   for (const key of REQUIRED_CONTRACT_KEYS) {

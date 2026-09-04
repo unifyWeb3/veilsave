@@ -110,6 +110,18 @@ export function ConsoleApp() {
                 {deployment.error}
               </StateBlock>
             ) : null}
+            {deployment.status === "read-only" ? (
+              <StateBlock
+                kind="waiting"
+                title="Read-only live inspection"
+                safety="Transactions are disabled until the ACTIVE deployment manifest is published."
+                actionLabel="Retry validation"
+                onAction={deployment.retry}
+              >
+                Showing genuine Sepolia state from the bytecode-verified candidate deployment.
+                Deposit, withdrawal, and claim controls unlock after release validation completes.
+              </StateBlock>
+            ) : null}
             {writesEnabled ? (
               <OperationRecovery
                 onResume={(record) => {

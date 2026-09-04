@@ -3,7 +3,7 @@ import { useAccount, usePublicClient } from "wagmi";
 import type { Address, Hex } from "viem";
 
 import { poolAbi, settlementAbi, vrfAbi } from "../config/abis";
-import { useDeployment } from "../providers/DeploymentProvider";
+import { canReadDeployment, useDeployment } from "../providers/DeploymentProvider";
 import { EpochStatus, SlotStatus } from "./types";
 
 export interface SlotSnapshot {
@@ -187,7 +187,7 @@ export function useEpochSnapshot(epochId: bigint | undefined) {
   return useQuery({
     queryKey: ["veilsave", "epoch-snapshot", manifest?.sourceCommit, epochId?.toString()],
     enabled: Boolean(
-      publicClient && manifest && deploymentStatus === "ready" && epochId !== undefined,
+      publicClient && manifest && canReadDeployment(deploymentStatus) && epochId !== undefined,
     ),
     staleTime: 6_000,
     refetchInterval: 12_000,
@@ -212,7 +212,7 @@ export function useProtocolSnapshot() {
 
   return useQuery({
     queryKey: ["veilsave", "protocol-snapshot", manifest?.sourceCommit, address],
-    enabled: Boolean(publicClient && manifest && deploymentStatus === "ready"),
+    enabled: Boolean(publicClient && manifest && canReadDeployment(deploymentStatus)),
     staleTime: 6_000,
     refetchInterval: 12_000,
     queryFn: async (): Promise<ProtocolSnapshot> => {

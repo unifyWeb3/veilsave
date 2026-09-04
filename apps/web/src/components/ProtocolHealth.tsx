@@ -14,18 +14,22 @@ export function ProtocolHealth() {
         tone={
           deployment.status === "ready"
             ? "verified"
-            : deployment.status === "error"
-              ? "critical"
-              : "pending"
+            : deployment.status === "read-only"
+              ? "pending"
+              : deployment.status === "error"
+                ? "critical"
+                : "pending"
         }
         icon="shield-check"
         pulse={deployment.status === "loading"}
       >
         {deployment.status === "ready"
           ? "Manifest verified"
-          : deployment.status === "error"
-            ? "Manifest mismatch"
-            : "Checking manifest"}
+          : deployment.status === "read-only"
+            ? "Candidate verified · read-only"
+            : deployment.status === "error"
+              ? "Manifest mismatch"
+              : "Checking manifest"}
       </StatusPill>
       <StatusPill
         tone={

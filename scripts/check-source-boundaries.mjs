@@ -15,6 +15,26 @@ const forbiddenPatterns = [
     pattern: /(?:private[_-]?key|mnemonic)\s*[:=]\s*["'][^"']+["']/i,
   },
 ];
+// Scoped checks apply only to matching files. The ACTIVE deployment manifest
+// must be issued exclusively by the create-only release command after every
+// live gate passes; frontend source must validate and verify it, never
+// construct or bundle one (test fixtures are excluded).
+const scopedPatterns = [
+  {
+    label: "bundled ACTIVE deployment manifest in frontend source",
+    pattern: /status\s*:\s*["']ACTIVE["']/,
+    include: /^apps\/web\/src\//,
+    exclude: /\.test\.[mc]?[jt]sx?$/,
+  },
+  {
+    // The fetched ACTIVE manifest alone may carry ACTIVE status. Frontend
+    // source must never assign it (the candidate read model is REHEARSAL).
+    label: "ACTIVE status assignment in frontend source",
+    pattern: /DeploymentStatus\.Active/,
+    include: /^apps\/web\/src\//,
+    exclude: /\.test\.[mc]?[jt]sx?$/,
+  },
+];
 
 async function walk(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -57,9 +77,17 @@ for (const root of roots) {
 
   for (const file of files) {
     const source = await readFile(file, "utf8");
+    const relative = path.relative(workspaceRoot, file);
     for (const check of forbiddenPatterns) {
       if (check.pattern.test(source)) {
-        violations.push(`${path.relative(workspaceRoot, file)}: ${check.label}`);
+        violations.push(`${relative}: ${check.label}`);
+      }
+    }
+    for (const check of scopedPatterns) {
+      if (check.include.test(relative) && !check.exclude.test(relative)) {
+        if (check.pattern.test(source)) {
+          violations.push(`${relative}: ${check.label}`);
+        }
       }
     }
   }

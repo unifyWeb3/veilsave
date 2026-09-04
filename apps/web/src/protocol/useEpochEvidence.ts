@@ -3,7 +3,7 @@ import { usePublicClient } from "wagmi";
 import type { Address, Hex } from "viem";
 
 import { poolAbi, vrfAbi } from "../config/abis";
-import { useDeployment } from "../providers/DeploymentProvider";
+import { canReadDeployment, useDeployment } from "../providers/DeploymentProvider";
 import type { PublicEventLog } from "./eventRange";
 
 export interface EpochEvidence {
@@ -30,7 +30,7 @@ export function useEpochEvidence(epochId: bigint | undefined) {
   return useQuery({
     queryKey: ["veilsave", "epoch-evidence", manifest?.sourceCommit, epochId?.toString()],
     enabled: Boolean(
-      publicClient && manifest && deploymentStatus === "ready" && epochId !== undefined,
+      publicClient && manifest && canReadDeployment(deploymentStatus) && epochId !== undefined,
     ),
     staleTime: 15_000,
     refetchInterval: 30_000,
@@ -40,17 +40,17 @@ export function useEpochEvidence(epochId: bigint | undefined) {
       const pool = manifest.contracts.confidentialPrizePool.address as Address;
       const vrf = manifest.contracts.poolVrfAdapter.address as Address;
       const readEvents = (address: Address, abi: unknown, eventName: string) =>
-        (publicClient as unknown as {
-          getContractEvents: (parameters: Record<string, unknown>) => Promise<readonly unknown[]>;
-        }).getContractEvents({
+        (
+          publicClient as unknown as {
+            getContractEvents: (parameters: Record<string, unknown>) => Promise<readonly unknown[]>;
+          }
+        ).getContractEvents({
           address,
           abi,
           eventName,
           args: { epochId },
           fromBlock: BigInt(manifest.deploymentBlock),
-        }) as Promise<
-          readonly PublicEventLog[]
-        >;
+        }) as Promise<readonly PublicEventLog[]>;
 
       const [
         frozen,
