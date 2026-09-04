@@ -184,3 +184,22 @@ A live nonzero-winner draw with winner-only prize decryption and claim, and ther
 ## 21. Recommended final submission state
 
 Submit this release candidate as-is: link the repository at `REPORT_COMMIT`, the production URL `https://veilsave.vercel.app`, the Etherscan-verified candidate addresses (§8), and `live-epoch-1-evidence.json` as the terminal-lifecycle proof. State the epoch-2 staging (`PARTICIPANT_WINNER`, closes 2026-09-11) and the exact post-deadline path (§17.4) so reviewers can reproduce the remaining gates without trusting any claim.
+
+## 22. Addendum 2026-09-04 (backend audit): production console now reads live Sepolia
+
+- The production failure (`Failed to fetch` from a baked `example.invalid` manifest URL;
+  Vercel had no custom env) is fixed: correct public Vercel production variables,
+  `.vercelignore` excluding `.env.local`, and a bytecode-verified REHEARSAL candidate
+  read path. Full root-cause in `VEILSAVE-BACKEND-FINAL-RELEASE-REPORT.md` §13.
+- Console states are now `ready` (ACTIVE manifest; reads + writes) vs `read-only`
+  (verified candidate; genuine reads, transactions disabled) vs `error`. Writes never
+  unlock from the candidate; a bytecode mismatch fails closed.
+- Verified live in headless Chromium on `https://veilsave.vercel.app` (`/`, `/app`,
+  `/app/draws/1`): Epoch 2 OPEN, 2/16 slots with the genuine depositor addresses,
+  epoch-1 terminal evidence (request `10159892…04164`, winner handle `0x6282993c29…`,
+  TERMINAL · NO REROLL). Zero page errors.
+- Counts supersede §§5/18: web suite 51/51 (17 files), contract suite 55/55 re-run,
+  spikes 56/56, typecheck + production build + boundary checks green.
+- New known non-protocol blockers: GitHub repo visibility is private (owner action);
+  `scripts/recovery/` + `scripts/health/` are empty placeholders (progression itself is
+  permissionless and was operated live).

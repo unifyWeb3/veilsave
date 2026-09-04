@@ -138,7 +138,7 @@ If relayer/KMS is unavailable, preserve the epoch and handle, show `ACL propagat
 ## 8. Deposit and maturity
 
 1. User connects to Sepolia and reserves one free slot with exactly `0.001 Sepolia ETH` (the public refundable slot bond).
-2. Public test USDT is wrapped into cUSDT; the wrap amount is public.
+2. Fund the wallet with Sepolia ETH from any public Sepolia faucet (gas plus slot bond). Mint public test USDT directly from the mock underlying contract at `0xa7dA08FafDC9097Cc0E7D4f113A61e31d7e8e9b0` — its `mint(address,uint256)` is permissionless on Sepolia (proven live in `live-second-participant-evidence.json`) — then wrap it into cUSDT; the wrap amount is public.
 3. The browser encrypts the deposit and submits ERC-7984 transfer-and-call with the exact pool route.
 4. Reconcile the token callback and pool `DepositProcessed` event; credit only the actual callback amount.
 5. Pending weight does not enter the current epoch snapshot.

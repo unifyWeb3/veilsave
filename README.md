@@ -4,7 +4,7 @@ VeilSave is weekly confidential prize-linked cUSDT savings for Ethereum Sepolia.
 
 Users save in one shared 16-slot pool, keep principal, eligibility weight, withdrawal claims, and prizes encrypted, and retain principal withdrawal rights. Each epoch uses a frozen encrypted-weight snapshot, Chainlink VRF v2.5 randomness, and a separate FHE weighted-draw transaction. The winner address becomes public after authenticated proof verification; only that winner receives permission to decrypt the prize.
 
-> **Release status: FINAL RELEASE CANDIDATE WITH ONE PROTOCOL-CADENCE BLOCKER.** A candidate Sepolia deployment is live, Safe-activated, audited, and source-verified. Live encrypted deposit, immediate withdrawal, sponsored TEST YIELD, strict FIFO settlement, **and the full epoch-1 terminal lifecycle (freeze → VRF → isolated FHE draw → zero-winner finalization → epoch 2 opening) pass on Sepolia with genuine evidence**. Epoch 2 is staged for the weighted-winner run but closes `2026-09-11T14:03:00Z` under the immutable seven-day protocol rule, so the weighted-winner ACL/decryption gate and `ACTIVE` manifest publication cannot complete before the September 5 bounty deadline. The public site is live; its console stays read-only until an `ACTIVE` manifest exists.
+> **Release status: FINAL RELEASE CANDIDATE WITH ONE PROTOCOL-CADENCE BLOCKER.** A candidate Sepolia deployment is live, Safe-activated, audited, and source-verified. Live encrypted deposit, immediate withdrawal, sponsored TEST YIELD, strict FIFO settlement, **and the full epoch-1 terminal lifecycle (freeze → VRF → isolated FHE draw → zero-winner finalization → epoch 2 opening) pass on Sepolia with genuine evidence**. Epoch 2 is staged for the weighted-winner run but closes `2026-09-11T14:03:00Z` under the immutable seven-day protocol rule, so the weighted-winner ACL/decryption gate and `ACTIVE` manifest publication cannot complete before the September 5 bounty deadline. The public site is live; until an `ACTIVE` manifest exists at `/manifest/veilsave-sepolia.json`, the console runs in bytecode-verified read-only mode (genuine Sepolia state, transaction controls disabled).
 
 ## The core demonstration
 
@@ -246,7 +246,7 @@ See [deployments/README.md](deployments/README.md) and [RUNBOOK.md](RUNBOOK.md).
 ## Demo sequence after active release
 
 1. Connect a funded Sepolia wallet and show the honest privacy boundary.
-2. Acquire/wrap cUSDT and reserve one of 16 slots.
+2. Acquire/wrap cUSDT (Sepolia ETH from any public faucet; permissionless mock-USDT `mint` plus wrap — see `RUNBOOK.md` §8) and reserve one of 16 slots.
 3. Encrypt and submit a deposit; show the masked position and next-epoch maturity.
 4. Show multiple occupied slots without revealing amounts.
 5. Freeze the epoch, request VRF, and inspect request/fulfillment evidence.
@@ -270,7 +270,7 @@ See [deployments/README.md](deployments/README.md) and [RUNBOOK.md](RUNBOOK.md).
 - Live epoch-1 zero-winner rollover passes with full negatives; participant and public prize-decryption rejection proven for the zero-winner path.
 - Weighted-winner ACL propagation and winner-only user decryption are staged for epoch 2 but BLOCKED before the deadline by the seven-day protocol cadence (epoch 2 closes `2026-09-11T14:03:00Z`).
 - Live production-shaped Sepolia HCU/depth/gas measurement passes on the epoch-1 draw (see table above); the release HCU/gas/ACL reports are generated from epoch 2 by `release:manifest` and remain pending with it.
-- Public site is live at `https://veilsave.vercel.app` (homepage plus read-only console until an `ACTIVE` manifest is published at `/manifest/veilsave-sepolia.json`).
+- Public site is live at `https://veilsave.vercel.app` (homepage plus console; the console shows genuine bytecode-verified Sepolia state read-only until an `ACTIVE` manifest is published at `/manifest/veilsave-sepolia.json`, at which point deposit/withdrawal/claim controls unlock with no code change).
 - Public repository publication and final submission checks are pending.
 
 VeilSave is not **READY FOR SUBMISSION** until those live gates pass.
