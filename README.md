@@ -4,7 +4,7 @@ VeilSave is weekly confidential prize-linked cUSDT savings for Ethereum Sepolia.
 
 Users save in one shared 16-slot pool, keep principal, eligibility weight, withdrawal claims, and prizes encrypted, and retain principal withdrawal rights. Each epoch uses a frozen encrypted-weight snapshot, Chainlink VRF v2.5 randomness, and a separate FHE weighted-draw transaction. The winner address becomes public after authenticated proof verification; only that winner receives permission to decrypt the prize.
 
-> **Release status: READY WITH KNOWN BLOCKERS.** The production contracts, integrated frontend, local FHE/security suites, deployment tooling, and documentation are implemented. No active production manifest or contract addresses are published yet. Final Sepolia deployment, source verification, production-shaped live HCU/gas measurement, winner ACL propagation/user decryption, and the full live deposit-to-withdrawal acceptance run remain mandatory.
+> **Release status: FINAL RELEASE CANDIDATE WITH ONE PROTOCOL-CADENCE BLOCKER.** A candidate Sepolia deployment is live, Safe-activated, audited, and source-verified. Live encrypted deposit, immediate withdrawal, sponsored TEST YIELD, strict FIFO settlement, **and the full epoch-1 terminal lifecycle (freeze → VRF → isolated FHE draw → zero-winner finalization → epoch 2 opening) pass on Sepolia with genuine evidence**. Epoch 2 is staged for the weighted-winner run but closes `2026-09-11T14:03:00Z` under the immutable seven-day protocol rule, so the weighted-winner ACL/decryption gate and `ACTIVE` manifest publication cannot complete before the September 5 bounty deadline. The public site is live; its console stays read-only until an `ACTIVE` manifest exists.
 
 ## The core demonstration
 
@@ -184,7 +184,8 @@ The console refuses to expose transaction controls until the active manifest is 
 Verified on the current worktree:
 
 - Full production repository check: PASS.
-- Web suite: 13 files / 30 tests: PASS.
+- Contract suite: 9 suites (M0/M1-M3/M5/M6/M7/M8/M9/M10/M11), 55 tests: PASS, 0 failing.
+- Web suite: 15 files / 39 tests: PASS.
 - Preserved spike regression: 56 tests: PASS.
 - Production web build: PASS.
 - Production-preview route/responsive audit: PASS on landing, dashboard, draw, history, and privacy surfaces at desktop and 390px mobile widths.
@@ -199,29 +200,50 @@ Current production-shaped local draw measurement:
 | Sequential-depth HCU |  `3,448,096` |        `<= 4,000,000` |                  `5,000,000` |
 | Local mock gas       |  `2,081,929` | Informational locally | Sepolia measurement required |
 
-This leaves approximately 25.4% global-HCU and 31.0% depth headroom against the documented absolute limits. The standalone 16-slot Sepolia spike also passed at the same HCU/depth values, but the final production-shaped Sepolia transaction is still a release gate.
+This leaves approximately 25.4% global-HCU and 31.0% depth headroom against the documented absolute limits. The standalone 16-slot Sepolia spike also passed at the same HCU/depth values.
+
+Live Sepolia epoch-1 draw measurement (`live-epoch-1-evidence.json`, draw `0x7c3e4939805a1ffd41af76151751aeb9445388c6553f143b2272a03c1f3102ed`):
+
+| Metric               |        Observed |       Release target |
+| -------------------- | --------------: | -------------------: |
+| Global HCU           |    `14,927,694` |       `<= 17,000,000` |
+| Sequential-depth HCU |     `3,448,128` |        `<= 4,000,000` |
+| Draw gas used        |     `2,774,598` |       `<= 3,500,000` |
+| VRF callback gas     |       `152,041` | `<= 250,000` envelope |
+
+The live values sit inside every release budget with ~12% global-HCU and ~14% depth margin.
 
 Detailed evidence is recorded in [docs/implementation/implementation-report.md](docs/implementation/implementation-report.md).
 
 ## Sepolia deployment
 
-No final VeilSave production addresses are published in this repository yet. Do not treat spike contracts or audit-only fixtures as the application deployment.
+The following addresses are the current **candidate release deployment**. They are not an `ACTIVE` frontend manifest and must not be presented as a completed production release until the remaining live gates pass.
 
-Deployment requires the values in [.env.example](.env.example), current official address revalidation, a funded deployer, a reviewed Safe, and an immutable source revision. The production sequence is:
+| Component | Sepolia address |
+| --- | --- |
+| ConfidentialPrizePool | `0x6e543f7e6f3175824a2C36E37c09829200195D4d` |
+| PoolVrfAdapter | `0x23bD336d4E42Aa70DAea529C0EB75Ca98e3CeeEC` |
+| SettlementController | `0x8CF1984Aa1F3eE119aDCa5901DD58C28fb19589c` |
+| DeterministicTestYieldVault | `0x70d70205a992aE5e02e628EEcD8AE54Ce65Da529` |
+| TimelockController | `0x6aE428EE7f575720A7d696e566193A7484A8ff84` |
+| Governance Safe (2-of-3) | `0x429F46ADdDe54E4b05493C87d121efb75e3e9711` |
+| cUSDT | `0x4E7B06D78965594eB5EF5414c357ca21E1554491` |
 
-1. Run the complete local gate.
-2. Revalidate Zama, cUSDT/wrapper, Chainlink VRF, Safe, and RPC inputs.
-3. Deploy the timelock, TEST YIELD vault, settlement controller, VRF adapter, and pool.
-4. Execute the generated Safe bind/bind/activate batch in exact order.
-5. Run the post-deploy code/configuration/role audit.
-6. Verify all sources on Sepolia Etherscan.
-7. Run the live deposit, maturity, VRF, draw, winner ACL/decryption, immediate withdrawal, FIFO partial settlement, retry, and claim acceptance sequence.
-8. Record final production-shaped HCU/depth/gas evidence.
-9. Publish an `ACTIVE` manifest only after every evidence hash is available.
+Completed candidate-deployment evidence:
+
+- Safe bind/bind/activate bootstrap and authority erasure;
+- runtime/configuration/governance audit;
+- Etherscan source verification for all five deployed contracts;
+- encrypted deposit and next-epoch pending weight;
+- immediate confidential withdrawal;
+- aggregate investment plus sponsored deterministic TEST YIELD harvest;
+- two-participant strict request-time FIFO, partial settlement, retry, ordered claims, and double-claim rejection.
+
+Epoch 1 closed `2026-09-02T15:15:00Z` and terminalized live on `2026-09-04` with a PASS zero-eligible-weight rollover: frozen 2-slot snapshot verified against pre-freeze handles, one VRF request bound to the snapshot commitment, callback storing randomness only (152,041 gas), isolated 16-slot FHE draw inside all budgets, KMS-authenticated zero-winner finalization after the 96-block delay with early/wrong-clear/wrong-epoch/replay negatives proven, participant and public prize-decryption rejection proven, prize rolled forward, and epoch 2 opened. Epoch 2 (both deposits now eligible, `PARTICIPANT_WINNER` staged) closes `2026-09-11T14:03:00Z` under the immutable seven-day protocol constant, so the weighted-winner and winner-only ACL/decryption run follows after the bounty deadline. The create-only release command refuses to publish a manifest before both epochs and every negative/privacy/performance gate pass.
 
 See [deployments/README.md](deployments/README.md) and [RUNBOOK.md](RUNBOOK.md).
 
-## Demo sequence after deployment
+## Demo sequence after active release
 
 1. Connect a funded Sepolia wallet and show the honest privacy boundary.
 2. Acquire/wrap cUSDT and reserve one of 16 slots.
@@ -244,10 +266,12 @@ See [deployments/README.md](deployments/README.md) and [RUNBOOK.md](RUNBOOK.md).
 - Browser, wallet, RPC, Zama relayer/KMS, Chainlink, external cUSDT/wrapper, and strategy availability remain trust/availability dependencies.
 - TEST YIELD is sponsored; no organic-yield or APY claim is made.
 - A lost winning wallet key can make a private prize inaccessible.
-- Final Sepolia deployment/source verification is pending.
-- Live winner ACL propagation and winner-only user decryption are pending.
-- Final production-shaped Sepolia HCU/depth/gas measurement is pending.
-- Full Sepolia immediate/queued/FIFO/retry acceptance is pending.
+- Candidate Sepolia deployment, Safe activation, audit, and source verification pass; `ACTIVE` release publication remains pending.
+- Live epoch-1 zero-winner rollover passes with full negatives; participant and public prize-decryption rejection proven for the zero-winner path.
+- Weighted-winner ACL propagation and winner-only user decryption are staged for epoch 2 but BLOCKED before the deadline by the seven-day protocol cadence (epoch 2 closes `2026-09-11T14:03:00Z`).
+- Live production-shaped Sepolia HCU/depth/gas measurement passes on the epoch-1 draw (see table above); the release HCU/gas/ACL reports are generated from epoch 2 by `release:manifest` and remain pending with it.
+- Public site is live at `https://veilsave.vercel.app` (homepage plus read-only console until an `ACTIVE` manifest is published at `/manifest/veilsave-sepolia.json`).
+- Public repository publication and final submission checks are pending.
 
 VeilSave is not **READY FOR SUBMISSION** until those live gates pass.
 

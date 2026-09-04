@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "product": "VeilSave",
+  "chainId": 11155111,
+  "verifiedAt": "2026-08-26T15:22:01.852Z",
+  "status": "PASS",
+  "contracts": [
+    {
+      "contract": "timelockController",
+      "address": "0x6aE428EE7f575720A7d696e566193A7484A8ff84",
+      "verifiedSourceUrl": "https://sepolia.etherscan.io/address/0x6aE428EE7f575720A7d696e566193A7484A8ff84#code"
+    },
+    {
+      "contract": "deterministicTestYieldVault",
+      "address": "0x70d70205a992aE5e02e628EEcD8AE54Ce65Da529",
+      "verifiedSourceUrl": "https://sepolia.etherscan.io/address/0x70d70205a992aE5e02e628EEcD8AE54Ce65Da529#code"
+    },
+    {
+      "contract": "settlementController",
+      "address": "0x8CF1984Aa1F3eE119aDCa5901DD58C28fb19589c",
+      "verifiedSourceUrl": "https://sepolia.etherscan.io/address/0x8CF1984Aa1F3eE119aDCa5901DD58C28fb19589c#code"
+    },
+    {
+      "contract": "poolVrfAdapter",
+      "address": "0x23bD336d4E42Aa70DAea529C0EB75Ca98e3CeeEC",
+      "verifiedSourceUrl": "https://sepolia.etherscan.io/address/0x23bD336d4E42Aa70DAea529C0EB75Ca98e3CeeEC#code"
+    },
+    {
+      "contract": "confidentialPrizePool",
+      "address": "0x6e543f7e6f3175824a2C36E37c09829200195D4d",
+      "verifiedSourceUrl": "https://sepolia.etherscan.io/address/0x6e543f7e6f3175824a2C36E37c09829200195D4d#code"
+    }
+  ]
+}

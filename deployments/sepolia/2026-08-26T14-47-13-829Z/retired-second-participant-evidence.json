@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "product": "VeilSave",
+  "status": "PASS",
+  "network": "ethereum-sepolia",
+  "chainId": 11155111,
+  "recordedAt": "2026-08-26T22:44:13.552Z",
+  "participant": "0x84896FC8df7661090f7Af36B898Ba0D6CB1A5C56",
+  "pool": "0x6e543f7e6f3175824a2C36E37c09829200195D4d",
+  "slot": 1,
+  "reason": "Acceptance wallet credential rotation before any epoch snapshot.",
+  "withdrawalId": "2",
+  "request": {
+    "transactionHash": "0xfd78358068e2dc895c509aa376dd15445423753fc4b3fc49d086f84681d0f635",
+    "blockNumber": 11573858,
+    "gasUsed": "1192147"
+  },
+  "routingFinalization": {
+    "transactionHash": "0xc68ae075a52d94db94d74b490b70d652d85124e666e4747aac170c936171e25c",
+    "blockNumber": 11573860,
+    "gasUsed": "370186"
+  },
+  "release": {
+    "transactionHash": "0x0f81f53a12c6ae0a95e355da0b5b021a57431842d052bd3a2c9dc6dfa934a4c0",
+    "blockNumber": 11573861,
+    "gasUsed": "54622"
+  },
+  "route": "IMMEDIATE",
+  "slotReleased": true,
+  "bondRefunded": true,
+  "residualTestAssetHandlePresent": true,
+  "privacy": {
+    "privateKeyRecordedPublicly": false,
+    "principalAmountRecordedPublicly": false,
+    "ciphertextHandlesRecorded": false
+  }
+}

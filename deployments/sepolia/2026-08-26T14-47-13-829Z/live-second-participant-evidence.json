@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "product": "VeilSave",
+  "status": "PASS",
+  "network": "ethereum-sepolia",
+  "chainId": 11155111,
+  "recordedAt": "2026-08-26T22:48:47.023Z",
+  "participant": "0x2f5b36Cc06f6bA7529AD53d8bC23CEf79F80Ce3A",
+  "pool": "0x6e543f7e6f3175824a2C36E37c09829200195D4d",
+  "confidentialToken": "0x4E7B06D78965594eB5EF5414c357ca21E1554491",
+  "publicUnderlying": "0xa7dA08FafDC9097Cc0E7D4f113A61e31d7e8e9b0",
+  "funding": {
+    "transactionHash": "0x5558870b93e7a108e9eda13f257317b10759ef61892371ceecc62a0c0a64bd8d",
+    "blockNumber": 11573870,
+    "gasUsed": "21000"
+  },
+  "publicAssetPreparation": {
+    "mintAndWrapBaseUnits": "1000000",
+    "mint": {
+      "transactionHash": "0x941c4f28c4cda2fcdd67d0e4a9642ce50f4018433712b7ff8c80a7078dff8563",
+      "blockNumber": 11573874,
+      "gasUsed": "51760"
+    },
+    "approval": {
+      "transactionHash": "0x38e626c4454a0e490d146961577d68c9f416b586ad6ed9fbe02e4fb19771496d",
+      "blockNumber": 11573875,
+      "gasUsed": "46600"
+    },
+    "wrap": {
+      "transactionHash": "0x7c3132ac67b2de66654ea50e9cf4ba1e8e6e84cefdcf414c5c30358bf20105a0",
+      "blockNumber": 11573876,
+      "gasUsed": "367254"
+    },
+    "note": "Public Sepolia mock-USDT mint and wrap; not a confidential deposit amount."
+  },
+  "slot": {
+    "index": 1,
+    "bondWei": "1000000000000000",
+    "denomination": "Sepolia ETH",
+    "refundable": true,
+    "reservation": {
+      "transactionHash": "0x0855d9c5aff0aa2c34c19d852b6c074fb7cd3caf2468d8211e5f9bd58d380d2b",
+      "blockNumber": 11573872,
+      "gasUsed": "97167"
+    }
+  },
+  "deposit": {
+    "transactionHash": "0xf9152521e0fdbd3d1dca7731bbbdf5771e197767b746b964cf9ca779107b8c6a",
+    "blockNumber": 11573882,
+    "gasUsed": "1446216",
+    "pendingEpoch": "2",
+    "eventObserved": true,
+    "slotActivated": true,
+    "privatePrincipalReconciled": true,
+    "privateTokenBalanceReconciled": true
+  },
+  "dependencies": {
+    "zamaInitializationAttempts": 1,
+    "principalDecryptionAttempts": 1,
+    "tokenDecryptionAttempts": 1
+  },
+  "privacy": {
+    "depositAmountRecordedPublicly": false,
+    "inputProofRecorded": false,
+    "ciphertextHandlesRecorded": false,
+    "privateKeyRecordedPublicly": false
+  }
+}

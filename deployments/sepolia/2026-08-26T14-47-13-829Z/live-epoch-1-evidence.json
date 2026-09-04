@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "product": "VeilSave",
+  "status": "PASS",
+  "network": "ethereum-sepolia",
+  "chainId": 11155111,
+  "recordedAt": "2026-09-04T14:03:01.067Z",
+  "epoch": {
+    "id": "1",
+    "openedAt": "1787757300",
+    "closesAt": "1788362100",
+    "expectedOutcome": "ZERO_WINNER",
+    "frozenSlotCount": 2,
+    "snapshotCommitment": "0x00e8bb050c3482d2edc2538220e84041d1817e9d69e2f56f23cc31fd7f5e4d3c",
+    "frozenOwnersMatchPrecheck": true,
+    "frozenWeightHandlesMatchPrecheck": true,
+    "freeze": {
+      "transactionHash": "0x5d31db199052fcd2f5740acde2aafe075d85d48e02906531420fd0dab3d8b674",
+      "blockNumber": 11633722,
+      "gasUsed": "1160862"
+    },
+    "terminal": true
+  },
+  "vrf": {
+    "requestId": "101598922990784706611885201372562388386219001989045154348585444616748394704164",
+    "quoteWei": "257243035623948",
+    "adapterBalanceBeforeRequestWei": "10000000000000000",
+    "funding": null,
+    "request": {
+      "transactionHash": "0x2ee81280db64bf0d2c3b36e9e66af1a9264613aa4351888d8b6a61b00b47226d",
+      "blockNumber": 11633725,
+      "gasUsed": "272604"
+    },
+    "fulfillment": {
+      "transactionHash": "0xf0d55c6ba18f9ae1cf69eacf7db4f917f2b3b69fdf13f6e9b4d0d43c1155b8f4",
+      "blockNumber": 11633730,
+      "gasUsed": "152041"
+    },
+    "callbackGasUsed": "152041",
+    "callbackStoresRandomnessOnly": true,
+    "randomWord": "88461112456373531647739938463615544495329127272595597028404404701203376358546",
+    "sync": {
+      "transactionHash": "0x942d49f3652700aa28860e6c449e6d84139b4d35213d1f93bbd3ee420fc07bcc",
+      "blockNumber": 11633772,
+      "gasUsed": "98433"
+    },
+    "confirmations": 3,
+    "words": 1
+  },
+  "draw": {
+    "transaction": {
+      "transactionHash": "0x7c3e4939805a1ffd41af76151751aeb9445388c6553f143b2272a03c1f3102ed",
+      "blockNumber": 11633773,
+      "gasUsed": "2774598"
+    },
+    "participantCapacity": 16,
+    "globalHcu": 14927694,
+    "maxSequentialDepthHcu": 3448128,
+    "targetGlobalHcu": 17000000,
+    "targetSequentialDepthHcu": 4000000,
+    "withinSafetyBudget": true,
+    "isolatedFromVrfCallback": true,
+    "winnerHandle": "0x6282993c2944b115876fa748e21731244c3eb0fa1cff0000000000aa36a70700"
+  },
+  "winner": {
+    "publicDecrypt": {
+      "clearWinner": "0x0000000000000000000000000000000000000000",
+      "proofHash": "0x29ee179798dc92b80eb5b626ea1058de13d2d6041ab253cb90a2364b9d63c18f",
+      "attempts": 1,
+      "latencyMs": 5820
+    },
+    "aclGrantNotBeforeBlock": "11633869",
+    "earlyFinalizationRejected": true,
+    "wrongClearRejected": true,
+    "wrongHandleRejected": null,
+    "wrongEpochRejected": true,
+    "finalize": {
+      "transactionHash": "0xd5e9f312e246880d26a843a98561bf2c7b8e3b796d563dbb87c44d466566671d",
+      "blockNumber": 11633904,
+      "gasUsed": "618033"
+    },
+    "replayRejected": true,
+    "finalizedWinner": "0x0000000000000000000000000000000000000000"
+  },
+  "prizeAcl": {
+    "prizePubliclyDecryptable": false,
+    "winnerBeforeGrantRejected": null,
+    "winnerDecryptionPassed": null,
+    "nonWinnerDecryptionRejected": true,
+    "publicDecryptionRejected": true,
+    "aclPropagationAttempts": null,
+    "aclPropagationLatencyMs": null,
+    "prizeAmountRecordedPublicly": false
+  },
+  "prizeClaim": null,
+  "nextEpoch": {
+    "id": "2",
+    "opening": {
+      "transactionHash": "0x4ee5d48597781962f79455dfb70c547719ba7581f574105d68fe61090bd8c1a6",
+      "blockNumber": 11633905,
+      "gasUsed": "54812"
+    }
+  },
+  "privacy": {
+    "participantPrincipalRecorded": false,
+    "participantWeightsRecorded": false,
+    "prizeAmountRecorded": false,
+    "decryptionProofRecorded": false,
+    "privateKeysRecordedPublicly": false,
+    "winnerAddressPublicByDesign": true
+  }
+}

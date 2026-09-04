@@ -13,7 +13,8 @@ Do not publish a manifest containing placeholder or zero addresses. Deployment-s
 5. Review `deployment-draft.json` and execute `safe-bootstrap-batch.json` from the configured Safe in its exact bind-controller, bind-VRF, activate-pool order.
 6. Set `DEPLOYMENT_DRAFT_PATH` to the generated draft and run `pnpm --filter @veilsave/contracts deploy:audit`.
 7. Run `pnpm --filter @veilsave/contracts verify:sepolia` with `ETHERSCAN_API_KEY` configured.
-8. Complete the live deposit/draw/ACL/FIFO acceptance run and hash the resulting evidence before producing the schema-valid public manifest.
+8. Complete the live deposit/draw/ACL/FIFO acceptance run.
+9. Load the reviewed Sepolia RPC environment and run `pnpm --filter @veilsave/contracts release:manifest`. The command revalidates current Sepolia runtime code, upgradeable dependency implementations, and the 2-of-3 Safe/singleton, then refuses to write unless both epoch evidence files, the ACL/decryption negatives, the HCU/depth/gas budgets, earlier live acceptance evidence, source verification, and the post-deploy audit all pass.
 
 The deployer cannot bind or activate application contracts. Those one-time capabilities belong to the Safe from construction and are erased by activation. The OpenZeppelin timelock is deployed with a 24-hour delay, Safe proposer/canceller roles, an open executor role, and no deployer admin role.
 
@@ -25,3 +26,5 @@ The deployer cannot bind or activate application contracts. Those one-time capab
 - `source-verification.json`: Etherscan verification results.
 
 These intermediate files are not the public deployment manifest. `manifest.schema.json` additionally requires final HCU/gas evidence and a successful live winner ACL/decryption record.
+
+The release command writes `live-hcu-report.json`, `live-gas-report.json`, `live-acl-validation-report.json`, and `manifest.json` with create-only semantics. It never edits `deployment-draft.json`, never emits a placeholder manifest, and refuses to overwrite an existing release artifact. Set `ACTIVE_MANIFEST_PATH` only when the reviewed hosting path should differ from the deployment directory default.

@@ -34,6 +34,7 @@ export function ConsoleApp() {
   const [sheet, setSheet] = useState<"deposit" | "withdraw" | null>(null);
   const [recoveryRecord, setRecoveryRecord] = useState<OperationRecord | null>(null);
   const strategyMode = deployment.manifest?.strategy.mode === "LIVE_STRATEGY" ? "live" : "test";
+  const writesEnabled = deployment.status === "ready";
   const path = location.pathname;
   const active = path.includes("/draws")
     ? "draws"
@@ -96,38 +97,39 @@ export function ConsoleApp() {
               transaction controls.
             </StateBlock>
           </div>
-        ) : deployment.status === "error" ? (
-          <div className="vs-console-content">
-            <StateBlock
-              kind="failed"
-              title="Deployment validation stopped"
-              actionLabel="Retry validation"
-              onAction={deployment.retry}
-            >
-              The console will not read or transact against an unverified contract configuration.{" "}
-              {deployment.error}
-            </StateBlock>
-          </div>
         ) : (
           <div className="vs-console-content">
-            <OperationRecovery
-              onResume={(record) => {
-                setRecoveryRecord(record);
-                setSheet(record.kind === "withdrawal" ? "withdraw" : "deposit");
-              }}
-              onViewDraws={(record) => {
-                setRecoveryRecord(record);
-                const epoch =
-                  record.epochId && /^[1-9][0-9]*$/.test(record.epochId)
-                    ? record.epochId
-                    : "current";
-                navigate(`/app/draws/${epoch}`);
-              }}
-              onViewSettlement={(record) => {
-                setRecoveryRecord(record);
-                navigate("/app");
-              }}
-            />
+            {deployment.status === "error" ? (
+              <StateBlock
+                kind="failed"
+                title="Deployment validation stopped"
+                actionLabel="Retry validation"
+                onAction={deployment.retry}
+              >
+                The console will not read or transact against an unverified contract configuration.{" "}
+                {deployment.error}
+              </StateBlock>
+            ) : null}
+            {writesEnabled ? (
+              <OperationRecovery
+                onResume={(record) => {
+                  setRecoveryRecord(record);
+                  setSheet(record.kind === "withdrawal" ? "withdraw" : "deposit");
+                }}
+                onViewDraws={(record) => {
+                  setRecoveryRecord(record);
+                  const epoch =
+                    record.epochId && /^[1-9][0-9]*$/.test(record.epochId)
+                      ? record.epochId
+                      : "current";
+                  navigate(`/app/draws/${epoch}`);
+                }}
+                onViewSettlement={(record) => {
+                  setRecoveryRecord(record);
+                  navigate("/app");
+                }}
+              />
+            ) : null}
             <Routes>
               <Route
                 index
@@ -163,7 +165,7 @@ export function ConsoleApp() {
           onNavigate={onNavigate}
         />
       </main>
-      {sheet === "deposit" ? (
+      {writesEnabled && sheet === "deposit" ? (
         <DepositFlow
           open
           recoveryRecord={recoveryRecord}
@@ -173,7 +175,7 @@ export function ConsoleApp() {
           }}
         />
       ) : null}
-      {sheet === "withdraw" ? (
+      {writesEnabled && sheet === "withdraw" ? (
         <WithdrawFlow
           open
           recoveryRecord={recoveryRecord}

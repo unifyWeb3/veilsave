@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "product": "VeilSave",
+  "status": "PASS",
+  "network": "ethereum-sepolia",
+  "chainId": 11155111,
+  "recordedAt": "2026-08-26T22:17:14.269Z",
+  "mode": "TEST_YIELD",
+  "disclosure": "Sponsored deterministic test value; not organic yield and not APY.",
+  "pool": "0x6e543f7e6f3175824a2C36E37c09829200195D4d",
+  "controller": "0x8CF1984Aa1F3eE119aDCa5901DD58C28fb19589c",
+  "strategy": "0x70d70205a992aE5e02e628EEcD8AE54Ce65Da529",
+  "publicUnderlying": "0xa7dA08FafDC9097Cc0E7D4f113A61e31d7e8e9b0",
+  "investment": {
+    "settlementId": "1",
+    "publicCap": "800000",
+    "clearAggregate": "800000",
+    "start": {
+      "transactionHash": "0x6ed178311d47e80de3211815eb82de34415eb38c19d7ef030f121201af0e954e",
+      "blockNumber": 11573670,
+      "gasUsed": "867945"
+    },
+    "finalize": {
+      "transactionHash": "0x7426004f0b204c134025b04ce932653ef620f68001875132ed0f1c04f97dfc53",
+      "blockNumber": 11573725,
+      "gasUsed": "709853"
+    },
+    "deployedPrincipalAfter": "800000",
+    "strategyAssetsAfter": "800000"
+  },
+  "sponsorship": {
+    "publicAssets": "100000",
+    "mint": {
+      "transactionHash": "0xc0b89c5c2b4625b4ff22919126530bd5154f1c521bb686ab18bbd38c1ab3880d",
+      "blockNumber": 11573726,
+      "gasUsed": "51760"
+    },
+    "approval": {
+      "transactionHash": "0x81c8d5b3035b1cae429830b2dcb917ae6c88bc25ade8b181c5b9595ec8b1a9c8",
+      "blockNumber": 11573727,
+      "gasUsed": "46600"
+    },
+    "sponsor": {
+      "transactionHash": "0x28ca9e8099bafbf66a9283e7e633386cf17afa3ce89cae2e475150e90e6eb85a",
+      "blockNumber": 11573729,
+      "gasUsed": "35481"
+    },
+    "eventObserved": true
+  },
+  "harvest": {
+    "settlementId": "2",
+    "publicCap": "100000",
+    "publicAssetsReceived": "99999",
+    "start": {
+      "transactionHash": "0x649bf4c3b7a09cdf28cb958cb54ea852ae56b1c0def8751481e2fdd432080809",
+      "blockNumber": 11573731,
+      "gasUsed": "176940"
+    },
+    "execute": {
+      "transactionHash": "0x6c663429a8c60960343c486ee346f44ba83752275ba501076286fe7442fc8f8c",
+      "blockNumber": 11573732,
+      "gasUsed": "536701"
+    },
+    "strategyAssetsAfter": "800001",
+    "principalCostBasisUnchanged": true,
+    "encryptedPrizeReserveCredited": true
+  },
+  "dependencies": {
+    "zamaInitializationAttempts": 1,
+    "aggregatePublicDecryptAttempts": 1,
+    "aggregatePublicDecryptLatencyMs": 6077
+  },
+  "privacy": {
+    "individualPrincipalRecorded": false,
+    "individualWeightRecorded": false,
+    "prizeAmountDecrypted": false,
+    "aggregateSettlementPublicByDesign": true
+  }
+}

@@ -35,3 +35,4 @@ secrets/
 # Local deployment evidence that may contain transient RPC data
 deployments/local/
 evidence/private/
+**/evidence/private/

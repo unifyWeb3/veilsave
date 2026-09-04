@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "product": "VeilSave",
+  "status": "PASS",
+  "network": "ethereum-sepolia",
+  "chainId": 11155111,
+  "recordedAt": "2026-08-26T20:18:44Z",
+  "participant": "0x5FE738227ab4219bc317812a938dEf57489d444a",
+  "pool": "0x6e543f7e6f3175824a2C36E37c09829200195D4d",
+  "confidentialToken": "0x4E7B06D78965594eB5EF5414c357ca21E1554491",
+  "slot": 0,
+  "slotBond": {
+    "denomination": "Sepolia ETH",
+    "amountWei": "1000000000000000",
+    "refundable": true,
+    "transactionHash": "0x43bfd26870fdf8fbcf911b0831c92e98820c22f7899a73be3221d0d1aab64f5b",
+    "blockNumber": 11571800,
+    "gasUsed": "94878",
+    "eventObserved": true
+  },
+  "deposit": {
+    "transactionHash": "0xc31c8ac3cb38e1bd2bfecc61d8d3114430159b6504d930d6a29cf35b7c46cf60",
+    "blockNumber": 11571922,
+    "gasUsed": "1447409",
+    "route": "VEILSAVE_DEPOSIT_V1",
+    "pendingEpoch": "2",
+    "eventObserved": true,
+    "slotActivated": true,
+    "principalCiphertextChanged": true,
+    "pendingWeightCiphertextChanged": true,
+    "privatePrincipalReconciled": true,
+    "privateTokenBalanceReconciled": true
+  },
+  "privacy": {
+    "amountRecordedPublicly": false,
+    "inputProofRecorded": false,
+    "ciphertextHandlesRecorded": false,
+    "note": "Private amount reconciliation was completed before public evidence collection; the amount and proof remain only in ignored local acceptance state."
+  }
+}

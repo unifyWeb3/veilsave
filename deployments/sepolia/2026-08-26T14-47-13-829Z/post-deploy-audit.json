@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 1,
+  "product": "VeilSave",
+  "auditedAt": "2026-08-27T01:40:30.444Z",
+  "chainId": 11155111,
+  "deploymentDraft": "/home/unify/zamaS4/deployments/sepolia/2026-08-26T14-47-13-829Z/deployment-draft.json",
+  "status": "PASS",
+  "codeChecks": {
+    "timelockController": {
+      "address": "0x6aE428EE7f575720A7d696e566193A7484A8ff84",
+      "runtimeCodeHash": "0x55b4aa2e389f3dea87705315083756984234bc74a579bebcc96ebd0609f542be",
+      "runtimeBytes": 5334
+    },
+    "deterministicTestYieldVault": {
+      "address": "0x70d70205a992aE5e02e628EEcD8AE54Ce65Da529",
+      "runtimeCodeHash": "0x509c31d274de8c70f8a90bbd025152f5d548d135beba313a33e18db378eed7de",
+      "runtimeBytes": 4667
+    },
+    "settlementController": {
+      "address": "0x8CF1984Aa1F3eE119aDCa5901DD58C28fb19589c",
+      "runtimeCodeHash": "0x90b4f70711e9031fa2dc952b01dab62fab53dfda08d80c14eae7956b82bbec2d",
+      "runtimeBytes": 13468
+    },
+    "poolVrfAdapter": {
+      "address": "0x23bD336d4E42Aa70DAea529C0EB75Ca98e3CeeEC",
+      "runtimeCodeHash": "0x7d0efe4bb6ac0353bd987138f5f7adfba2c0f464fc3949578937a615929c910f",
+      "runtimeBytes": 3062
+    },
+    "confidentialPrizePool": {
+      "address": "0x6e543f7e6f3175824a2C36E37c09829200195D4d",
+      "runtimeCodeHash": "0x96729278491e3925da9fd819df77f1d193135c9de4926046d294ad2cba35028f",
+      "runtimeBytes": 24507
+    }
+  },
+  "externalCodeChecks": {
+    "confidentialToken": {
+      "address": "0x4E7B06D78965594eB5EF5414c357ca21E1554491",
+      "runtimeCodeHash": "0x864cc9ad53b338b82da1f7cab85ab0b3d5c8861acb422b6fec63cf36234f36a6",
+      "runtimeBytes": 170
+    },
+    "underlyingToken": {
+      "address": "0xa7dA08FafDC9097Cc0E7D4f113A61e31d7e8e9b0",
+      "runtimeCodeHash": "0x8af98e1e713811b600f06c8c7ae4834e974efc30de6eebdb746e0aaa39718269",
+      "runtimeBytes": 2385
+    },
+    "acl": {
+      "address": "0xf0Ffdc93b7E186bC2f8CB3dAA75D86d1930A433D",
+      "runtimeCodeHash": "0x864cc9ad53b338b82da1f7cab85ab0b3d5c8861acb422b6fec63cf36234f36a6",
+      "runtimeBytes": 170
+    },
+    "fheExecutor": {
+      "address": "0x92C920834Ec8941d2C77D188936E1f7A6f49c127",
+      "runtimeCodeHash": "0x864cc9ad53b338b82da1f7cab85ab0b3d5c8861acb422b6fec63cf36234f36a6",
+      "runtimeBytes": 170
+    },
+    "kmsVerifier": {
+      "address": "0xbE0E383937d564D7FF0BC3b46c51f0bF8d5C311A",
+      "runtimeCodeHash": "0x864cc9ad53b338b82da1f7cab85ab0b3d5c8861acb422b6fec63cf36234f36a6",
+      "runtimeBytes": 170
+    },
+    "inputVerifier": {
+      "address": "0xBBC1fFCdc7C316aAAd72E807D9b0272BE8F84DA0",
+      "runtimeCodeHash": "0x864cc9ad53b338b82da1f7cab85ab0b3d5c8861acb422b6fec63cf36234f36a6",
+      "runtimeBytes": 170
+    },
+    "vrfCoordinator": {
+      "address": "0x9DdfaCa8183c41ad55329BdeeD9F6A8d53168B1B",
+      "runtimeCodeHash": "0x5e22d4163e7c1b059a946f0600759a4d38eb3e04592d0e359def022cec36bdbc",
+      "runtimeBytes": 24094
+    },
+    "vrfWrapper": {
+      "address": "0x195f15F2d49d693cE265b4fB0fdDbE15b1850Cc1",
+      "runtimeCodeHash": "0x079cd722dd7b8789bdb5f313d032e4f8fe66bb75e93f07acd6ec33b50d1dc42b",
+      "runtimeBytes": 14693
+    }
+  },
+  "proxyImplementationChecks": {
+    "confidentialToken": {
+      "proxy": "0x4E7B06D78965594eB5EF5414c357ca21E1554491",
+      "implementation": "0xAe37b998d453E1FaBE85DD46cf04295ca4A3af04",
+      "runtimeCodeHash": "0x9db9008ab50ad9be8181aa629fb2afec2294a1f641b3e5c4f80bee68a05f8491",
+      "runtimeBytes": 22183
+    },
+    "acl": {
+      "proxy": "0xf0Ffdc93b7E186bC2f8CB3dAA75D86d1930A433D",
+      "implementation": "0xF4f793e6a2eF47DE60A94c0bC412292da5F7aB98",
+      "runtimeCodeHash": "0xff97165836a1171bfb656f8fd3727958c92860f4f6b06ef9a2e83ec01e51acb8",
+      "runtimeBytes": 10137
+    },
+    "fheExecutor": {
+      "proxy": "0x92C920834Ec8941d2C77D188936E1f7A6f49c127",
+      "implementation": "0x0cfB37566E0CEEBaF9eE244225aEe14cECD4d170",
+      "runtimeCodeHash": "0xa1686b73959ada4b036e0a65173fe8b9e437f22c961c5ce9c5dff7e27cc516be",
+      "runtimeBytes": 21535
+    },
+    "kmsVerifier": {
+      "proxy": "0xbE0E383937d564D7FF0BC3b46c51f0bF8d5C311A",
+      "implementation": "0xe90451e8Cc1c96faA5D59b4386ef5145F2d55ed0",
+      "runtimeCodeHash": "0xf1f402f9b25b5c4c9f61d9038e631cf4d1fc5fce1408ec3661b709b372988bf1",
+      "runtimeBytes": 9833
+    },
+    "inputVerifier": {
+      "proxy": "0xBBC1fFCdc7C316aAAd72E807D9b0272BE8F84DA0",
+      "implementation": "0xFcb7F9B69b169678e3fA2798FB0db49534834766",
+      "runtimeCodeHash": "0x129960744a0869e2febf708f515cfd402e104325d5d742b622b666a976c67cf3",
+      "runtimeBytes": 11242
+    }
+  },
+  "bindingsLocked": true,
+  "bootstrapAuthoritiesCleared": true,
+  "governance": {
+    "safe": "0x429F46ADdDe54E4b05493C87d121efb75e3e9711",
+    "safeRuntimeCodeHash": "0xd7d408ebcd99b2b70be43e20253d6d92a8ea8fab29bd3be7f55b10032331fb4c",
+    "safeSingleton": "0x29fcB43b46531BcA003ddC8FCB67FFE91900C762",
+    "safeSingletonRuntimeCodeHash": "0xb1f926978a0f44a2c0ec8fe822418ae969bd8c3f18d61e5103100339894f81ff",
+    "safeThreshold": "2",
+    "safeOwnerCount": 3,
+    "timelock": "0x6aE428EE7f575720A7d696e566193A7484A8ff84",
+    "minDelaySeconds": "86400",
+    "safeProposer": true,
+    "safeCanceller": true,
+    "openExecutor": true,
+    "selfAdmin": true
+  },
+  "pool": {
+    "active": true,
+    "currentEpochId": "1",
+    "epoch1OpenedAt": "1787757300",
+    "epoch1ClosesAt": "1788362100",
+    "participantCapacity": "16",
+    "runtimeBytes": 24507
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "product": "VeilSave",
+  "status": "PASS",
+  "network": "ethereum-sepolia",
+  "chainId": 11155111,
+  "recordedAt": "2026-08-26T21:49:34.126Z",
+  "participant": "0x5FE738227ab4219bc317812a938dEf57489d444a",
+  "pool": "0x6e543f7e6f3175824a2C36E37c09829200195D4d",
+  "confidentialToken": "0x4E7B06D78965594eB5EF5414c357ca21E1554491",
+  "slot": 0,
+  "withdrawalId": "1",
+  "request": {
+    "transactionHash": "0x167cf3e2b88f425a4f8131b63ac859dc9699f4ad862b78f61491fddff976c989",
+    "blockNumber": 11573548,
+    "gasUsed": "1349421"
+  },
+  "routingFinalization": {
+    "transactionHash": "0x997135169e67cad1ea1585357c0626848a7be35fbb153de68c3066f79d43445e",
+    "blockNumber": 11573595,
+    "gasUsed": "370198"
+  },
+  "route": "IMMEDIATE",
+  "ticketTerminalStatus": "IMMEDIATE_SETTLED",
+  "slotRemainsActive": true,
+  "activeWithdrawalCleared": true,
+  "privateReconciliation": {
+    "principalDebitedExactlyOnce": true,
+    "cUsdtReceivedExactlyOnce": true,
+    "amountSuppressed": true
+  },
+  "dependencies": {
+    "zamaInitializationAttempts": 1,
+    "publicDecryptAttempts": 1,
+    "publicDecryptLatencyMs": 5620,
+    "principalDecryptionAttempts": 1,
+    "tokenDecryptionAttempts": 1
+  },
+  "privacy": {
+    "amountRecordedPublicly": false,
+    "inputProofRecorded": false,
+    "ciphertextHandlesRecorded": false
+  }
+}

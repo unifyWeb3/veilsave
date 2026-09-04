@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 1,
+  "product": "VeilSave",
+  "status": "PASS",
+  "network": "ethereum-sepolia",
+  "chainId": 11155111,
+  "recordedAt": "2026-08-26T23:29:57.607Z",
+  "mode": "TEST_YIELD",
+  "disclosure": "Sepolia TEST YIELD acceptance; no mainnet or organic-yield claim.",
+  "pool": "0x6e543f7e6f3175824a2C36E37c09829200195D4d",
+  "controller": "0x8CF1984Aa1F3eE119aDCa5901DD58C28fb19589c",
+  "strategy": "0x70d70205a992aE5e02e628EEcD8AE54Ce65Da529",
+  "confidentialToken": "0x4E7B06D78965594eB5EF5414c357ca21E1554491",
+  "epoch": {
+    "id": "1",
+    "status": "OPEN",
+    "closesAt": "1788362100",
+    "scheduleUnchanged": true
+  },
+  "liquidityPreparation": {
+    "settlementId": "3",
+    "publicCap": "861316",
+    "clearAggregate": "861316",
+    "start": {
+      "transactionHash": "0xf7a81860bf8fa9d099755ebdff567950c8cfca2fb97ebb98fd807d6ef51ab452",
+      "blockNumber": 11574035,
+      "gasUsed": "872761"
+    },
+    "finalize": {
+      "transactionHash": "0x7503e956b3531920edaa50bdc923f47fca2f5761e1e81fb6c74ec872c8511c96",
+      "blockNumber": 11574038,
+      "gasUsed": "624353"
+    }
+  },
+  "withdrawals": {
+    "older": {
+      "requestId": "3",
+      "slot": 0,
+      "participant": "0x5FE738227ab4219bc317812a938dEf57489d444a",
+      "fifoSequence": "3",
+      "request": {
+        "transactionHash": "0xf28d5700e332fab42fd5221e871645211f8ecb8328d515cbb18e266620014891",
+        "blockNumber": 11574042,
+        "gasUsed": "1350680"
+      },
+      "routing": {
+        "transactionHash": "0x479127f66992c043b7e223d502df8087fe43b791db1417236df9bd245907ea18",
+        "blockNumber": 11574049,
+        "gasUsed": "363114"
+      },
+      "amountRecordedPublicly": false
+    },
+    "later": {
+      "requestId": "4",
+      "slot": 1,
+      "participant": "0x2f5b36Cc06f6bA7529AD53d8bC23CEf79F80Ce3A",
+      "fifoSequence": "4",
+      "request": {
+        "transactionHash": "0x2d0387e4f47532dc52d0abb25f7d356d01cd98ce46b4d815b4bedab968e8d5e6",
+        "blockNumber": 11574046,
+        "gasUsed": "1373293"
+      },
+      "routing": {
+        "transactionHash": "0xc58020c6fd18adaddaacd863ff2fc142bb35b1b06f562b3ee3a98497b77f55d1",
+        "blockNumber": 11574048,
+        "gasUsed": "363126"
+      },
+      "amountRecordedPublicly": false
+    },
+    "routingProofOrder": ["4", "3"],
+    "laterServiceBlockedUntilOlderRouting": true,
+    "requestTimePriorityPreserved": true
+  },
+  "settlements": {
+    "partial": {
+      "settlementId": "4",
+      "publicCap": "50000",
+      "clearAggregate": "50000",
+      "publicAssetsReceived": "50000",
+      "start": {
+        "transactionHash": "0x38491e663497bba3368804374e08277cfb188038a73627c800d3cf294f14637d",
+        "blockNumber": 11574051,
+        "gasUsed": "376627"
+      },
+      "finalize": {
+        "transactionHash": "0xd5c7aa77af9cfa93a3afd79836c101dafbd4846df51c252f46c5003caf6ad25e",
+        "blockNumber": 11574053,
+        "gasUsed": "912373"
+      }
+    },
+    "aggregateFinal": {
+      "settlementId": "5",
+      "publicCap": "2000000",
+      "clearAggregate": "300000",
+      "publicAssetsReceived": "300000",
+      "start": {
+        "transactionHash": "0xee899974896d55535e335edcb84b57c8883711e87aa6566a2c7c72b73ee3a930",
+        "blockNumber": 11574058,
+        "gasUsed": "373843"
+      },
+      "finalize": {
+        "transactionHash": "0xd06b68f06c073b0f2aa98b0f5862c0be24ee3fa3e65a4100bcd147783528cc8f",
+        "blockNumber": 11574060,
+        "gasUsed": "912357"
+      }
+    },
+    "aggregateAmountsPublicByDesign": true,
+    "wrongClearProofRejected": true,
+    "sameSettlementFinalizedAfterRejectedProof": true,
+    "resumableWithoutReplacementIntent": true
+  },
+  "claims": {
+    "olderPartial": {
+      "service": {
+        "transactionHash": "0xa41d8c77e1bc170cee3ecd45843aab138cd65341c4c5aa68e0286b4a0f4f06e5",
+        "blockNumber": 11574054,
+        "gasUsed": "773836"
+      },
+      "completion": {
+        "transactionHash": "0x702c174a23ffed128659f63240f5b046c0132ff686a118269348fd412a0a7610",
+        "blockNumber": 11574056,
+        "gasUsed": "400895"
+      },
+      "terminal": false
+    },
+    "olderFinal": {
+      "service": {
+        "transactionHash": "0x0328ee8df81c744a67e89b52a30a3a3c3c43df895614772138e824d4aecfbb16",
+        "blockNumber": 11574061,
+        "gasUsed": "756736"
+      },
+      "completion": {
+        "transactionHash": "0x424d455f76a3d916dcb6e69cd19fb94d15630ca1d846a325ba376d21c360c1f2",
+        "blockNumber": 11574063,
+        "gasUsed": "404100"
+      },
+      "terminal": true
+    },
+    "laterFinal": {
+      "service": {
+        "transactionHash": "0x63d40d652a0d8aa4e27d9fcc85250382ac5ad1287e941b70b0e6bb0978a8697f",
+        "blockNumber": 11574065,
+        "gasUsed": "771610"
+      },
+      "completion": {
+        "transactionHash": "0x026a6706eaf84a66ff1d89126dda033fee881551aae5f95aa906929832cfd9f6",
+        "blockNumber": 11574066,
+        "gasUsed": "401910"
+      },
+      "terminal": true
+    },
+    "olderCompletedBeforeLater": true,
+    "noFifoHeadAfterClaims": true,
+    "duplicateCompletionRejected": true,
+    "privatePrincipalTokenWeightReconciliation": true,
+    "bothSlotsRemainActiveForEpoch2": true
+  },
+  "privacy": {
+    "individualWithdrawalAmountsRecorded": false,
+    "individualPrincipalRecorded": false,
+    "individualWeightsRecorded": false,
+    "ciphertextHandlesRecorded": false,
+    "inputProofsRecorded": false,
+    "privateKeysRecordedPublicly": false,
+    "aggregateSettlementLeakageAcknowledged": true
+  }
+}
