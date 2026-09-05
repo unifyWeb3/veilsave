@@ -310,3 +310,29 @@ redesigned by this audit; display edits are limited to status/banner copy.
   a blocker (epoch-1 values are immutable on-chain).
 - Regression: web 51/51 (17 files), typecheck, production build, format, and
   source-boundary/secret checks green at push time.
+
+## 16. Addendum 2026-09-05: epoch-1 "winner handle" terminology ruling
+
+**Unambiguous truth.** `0x6282993c2944b115876fa748e21731244c3eb0fa1cff0000000000aa36a70700`
+is the FHE ciphertext handle of epoch 1's encrypted draw-output value: it is the
+`eaddress` stored by `executeEncryptedDraw` (emitted in `EncryptedDrawExecuted`) and
+returned today by `epochWinner(1).encryptedWinner`. Its KMS-authenticated public
+decryption is the zero address (proof `0x29ee179798dc92b80eb5b626ea1058de13d2d6041ab253cb90a2364b9d63c18f`,
+1 attempt). The zero path therefore emitted `EpochNoWinner` (not `WinnerFinalized`),
+terminalized with outcome `NO_ELIGIBLE_WEIGHT`, rolled the prize to the reserve, and set
+`finalizedWinner = 0x000…000`. **There is no winner.** "Winner handle" in earlier
+reports and UI copy always meant "handle of the encrypted winner-output value", never
+"address of a winner" — the phrasing was ambiguous and is now corrected.
+
+**UI corrections (display-only, no protocol change).** In a terminal zero-winner epoch
+the console now renders: step meta `OUTCOME HANDLE`, `Outcome handle` with note
+"Draw-output reference — decrypts to the zero address: no winner", `Outcome proof and
+finality` linking the `EpochNoWinner` transaction, `Outcome: No winner · terminal`, and
+a `No winner` pill instead of `Winner finalized`. The zero address is never rendered as
+a winner (history, landing, draw views). Covered by a terminal zero-winner Timeline
+regression test using the genuine epoch-1 values.
+
+**Demo narration (verbatim-safe).** "Epoch 1 ran the full lifecycle — freeze, VRF,
+encrypted draw — and the encrypted draw output publicly decrypts to the zero address,
+so the epoch terminalized with no winner, no reroll, and the prize rolled forward.
+`0x6282…` is the ciphertext reference of that outcome, not a winner."

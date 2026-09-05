@@ -368,7 +368,11 @@ function HistoryPage() {
             <div>
               <span>Winner</span>
               <strong className="mono">
-                {data.epoch.winnerFinalized ? data.epoch.finalizedWinner : "Pending"}
+                {!data.epoch.winnerFinalized
+                  ? "Pending"
+                  : data.epoch.finalizedWinner === "0x0000000000000000000000000000000000000000"
+                    ? "None (no winner)"
+                    : data.epoch.finalizedWinner}
               </strong>
             </div>
           </div>

@@ -16,6 +16,7 @@ import { EpochStatus, SlotStatus, epochStatusLabels } from "../protocol/types";
 import { useProtocolSnapshot } from "../protocol/useProtocolSnapshot";
 
 const ZERO_BYTES32 = `0x${"0".repeat(64)}`;
+const ZERO_ADDRESS = `0x${"0".repeat(40)}`;
 
 export function LandingPage() {
   const navigate = useNavigate();
@@ -162,11 +163,13 @@ export function LandingPage() {
                   label="Winner finalization"
                   kind="address"
                   value={
-                    data?.epoch.winnerFinalized
-                      ? short(data.epoch.finalizedWinner)
-                      : data?.epoch.status === EpochStatus.Abandoned
+                    !data?.epoch.winnerFinalized
+                      ? data?.epoch.status === EpochStatus.Abandoned
                         ? "Terminal · no reroll"
                         : "Pending"
+                      : data.epoch.finalizedWinner === ZERO_ADDRESS
+                        ? "No winner · terminal"
+                        : short(data.epoch.finalizedWinner)
                   }
                   verified={Boolean(data?.epoch.winnerFinalized)}
                 />

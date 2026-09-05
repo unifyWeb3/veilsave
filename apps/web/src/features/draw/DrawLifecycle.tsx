@@ -595,9 +595,13 @@ export function DrawLifecycle({
             <div className="vs-label">Prize</div>
             <h3 id="prize-panel-title">Epoch {epoch.id.toString()} result</h3>
           </div>
-          {epoch.winnerFinalized ? (
+          {epoch.winnerFinalized && epoch.finalizedWinner.toLowerCase() !== zeroAddress ? (
             <StatusPill tone="verified" icon="badge-check">
               Winner finalized
+            </StatusPill>
+          ) : epoch.winnerFinalized ? (
+            <StatusPill tone="terminal" icon="ban">
+              No winner
             </StatusPill>
           ) : (
             <StatusPill tone="pending">Not finalized</StatusPill>
