@@ -217,58 +217,61 @@ export async function verifyManifestCode(
   publicClient: PublicClient,
   manifest: Pick<VeilSaveDeploymentManifest, "contracts" | "external" | "governance">,
 ): Promise<CodeHashCheck[]> {
-  const checks: CodeHashCheck[] = [];
-  for (const key of REQUIRED_CONTRACT_KEYS) {
-    const deployment = manifest.contracts[key];
-    const address = deployment.address as Address;
+  const checkContract = async (label: string, address: Address, expected: `0x${string}`) => {
     const bytecode = await publicClient.getBytecode({ address });
-    if (!bytecode) throw new Error(`No runtime code found for ${key}`);
+    if (!bytecode) throw new Error(`No runtime code found for ${label}`);
     const actual = keccak256(bytecode);
-    checks.push({
-      label: key,
+    return {
+      label,
       address,
-      expected: deployment.runtimeCodeHash,
+      expected,
       actual,
-      ok: actual.toLowerCase() === deployment.runtimeCodeHash.toLowerCase(),
-    });
-  }
-  for (const key of EXTERNAL_CODE_KEYS) {
-    const address = manifest.external[key] as Address;
-    const bytecode = await publicClient.getBytecode({ address });
-    if (!bytecode) throw new Error(`No runtime code found for external ${key}`);
-    const actual = keccak256(bytecode);
-    checks.push({
-      label: `external.${key}`,
-      address,
-      expected: manifest.external.runtimeCodeHashes[key],
-      actual,
-      ok: actual.toLowerCase() === manifest.external.runtimeCodeHashes[key].toLowerCase(),
-    });
-  }
-  for (const key of PROXY_IMPLEMENTATION_KEYS) {
-    const proxyAddress = manifest.external[key] as Address;
-    const storage = await publicClient.getStorageAt({
-      address: proxyAddress,
-      slot: EIP1967_IMPLEMENTATION_SLOT,
-    });
-    const implementation = storageAddress(storage, `external.${key} implementation`);
-    const expected = manifest.external.proxyImplementations[key];
-    if (implementation.toLowerCase() !== expected.address.toLowerCase()) {
-      throw new Error(`External ${key} proxy implementation does not match the signed manifest`);
-    }
-    const bytecode = await publicClient.getBytecode({ address: implementation });
-    if (!bytecode) throw new Error(`No runtime code found for external ${key} implementation`);
-    const actual = keccak256(bytecode);
-    checks.push({
-      label: `external.${key}.implementation`,
-      address: implementation,
-      expected: expected.runtimeCodeHash,
-      actual,
-      ok: actual.toLowerCase() === expected.runtimeCodeHash.toLowerCase(),
-    });
-  }
+      ok: actual.toLowerCase() === expected.toLowerCase(),
+    } as CodeHashCheck;
+  };
+  const checks: CodeHashCheck[] = await Promise.all(
+    REQUIRED_CONTRACT_KEYS.map((key) => {
+      const deployment = manifest.contracts[key];
+      return checkContract(key, deployment.address as Address, deployment.runtimeCodeHash);
+    }),
+  );
+  const externalChecks: CodeHashCheck[] = await Promise.all(
+    EXTERNAL_CODE_KEYS.map((key) => {
+      const address = manifest.external[key] as Address;
+      return checkContract(`external.${key}`, address, manifest.external.runtimeCodeHashes[key]);
+    }),
+  );
+  checks.push(...externalChecks);
+  const implementationChecks: CodeHashCheck[] = await Promise.all(
+    PROXY_IMPLEMENTATION_KEYS.map(async (key) => {
+      const proxyAddress = manifest.external[key] as Address;
+      const expected = manifest.external.proxyImplementations[key];
+      const storage = await publicClient.getStorageAt({
+        address: proxyAddress,
+        slot: EIP1967_IMPLEMENTATION_SLOT,
+      });
+      const implementation = storageAddress(storage, `external.${key} implementation`);
+      if (implementation.toLowerCase() !== expected.address.toLowerCase()) {
+        throw new Error(`External ${key} proxy implementation does not match the signed manifest`);
+      }
+      const bytecode = await publicClient.getBytecode({ address: implementation });
+      if (!bytecode) throw new Error(`No runtime code found for external ${key} implementation`);
+      const actual = keccak256(bytecode);
+      return {
+        label: `external.${key}.implementation`,
+        address: implementation,
+        expected: expected.runtimeCodeHash,
+        actual,
+        ok: actual.toLowerCase() === expected.runtimeCodeHash.toLowerCase(),
+      } as CodeHashCheck;
+    }),
+  );
+  checks.push(...implementationChecks);
   const safeAddress = manifest.governance.safe as Address;
-  const safeBytecode = await publicClient.getBytecode({ address: safeAddress });
+  const [safeBytecode, singletonStorage] = await Promise.all([
+    publicClient.getBytecode({ address: safeAddress }),
+    publicClient.getStorageAt({ address: safeAddress, slot: SAFE_SINGLETON_SLOT }),
+  ]);
   if (!safeBytecode) throw new Error("No runtime code found for governance Safe");
   const safeActual = keccak256(safeBytecode);
   checks.push({
@@ -277,10 +280,6 @@ export async function verifyManifestCode(
     expected: manifest.governance.safeRuntimeCodeHash,
     actual: safeActual,
     ok: safeActual.toLowerCase() === manifest.governance.safeRuntimeCodeHash.toLowerCase(),
-  });
-  const singletonStorage = await publicClient.getStorageAt({
-    address: safeAddress,
-    slot: SAFE_SINGLETON_SLOT,
   });
   const singleton = storageAddress(singletonStorage, "governance Safe singleton");
   if (singleton.toLowerCase() !== manifest.governance.safeSingleton.address.toLowerCase()) {
