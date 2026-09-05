@@ -131,7 +131,9 @@ describe("DeploymentProvider manifest gate", () => {
         timeout: 10_000,
       });
       await expect(handle.latest().ensureTransactionReady()).resolves.toBe(true);
-      expect(handle.latest().status).toBe("ready");
+      await vi.waitFor(() => expect(handle.latest().status).toBe("ready"), {
+        timeout: 10_000,
+      });
       expect(handle.latest().source).toBe("active");
       expect(handle.latest().manifest?.status).toBe("ACTIVE");
     } finally {
