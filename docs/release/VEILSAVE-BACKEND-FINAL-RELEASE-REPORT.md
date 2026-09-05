@@ -281,3 +281,32 @@ redesigned by this audit; display edits are limited to status/banner copy.
 ---
 
 *End of backend final release report.*
+
+## 15. Addendum 2026-09-05: decoupled initialization + verified production behavior
+
+- **Init no longer touches the future ACTIVE manifest.** `DeploymentProvider` mounts
+  straight into candidate verification; the ACTIVE fetch runs only inside
+  `ensureTransactionReady()`, called from explicit transaction intent (Deposit/Withdraw
+  sheets, draw-lifecycle and settlement submit handlers, all of which fail with an
+  honest message when promotion is refused). Request interception in headless Chromium
+  confirms **zero `/manifest/` requests** during read-only init/idle and **zero failed
+  requests / page errors**.
+- **Faster settle:** `verifyManifestCode` now batches independent code/storage reads
+  (`Promise.all` per group, same checks in the same order). Measured `/app` settle:
+  ~21 s → **~9 s**. No check weakened (bytecode, proxy implementations, chain,
+  addresses, Safe/singleton all still verified; mismatch still fails closed).
+- **Write gating verified live:** clicking Deposit in read-only opens no dialog, no
+  sheet, no signing flow (DOM-verified: 0 dialogs, 0 sheets). Sheets, recovery resume,
+  draw progression, and settlement submits all sit behind promotion-or-deny.
+- **Production re-verified** (`veilsave-lgpxgydmt`, alias `veilsave.vercel.app`): `/`
+  (Epoch 2, 2/16, terminal epoch 1), `/app` (10/10 content checks incl. both genuine
+  depositor addresses, 14 available, tx-disabled messaging), `/app/draws/1` (TERMINAL ·
+  NO REROLL, request `10159892…04164`, 2 frozen slots).
+- **Coordination note:** frontend commit `87531d3` (dashboard overhaul: hero epoch
+  cards, slot grid, read-only banner) was reviewed — no gating, verification, or
+  status semantic weakened; all displayed values match live chain state. Two display
+  strings there are hardcoded-but-true for terminal epoch 1 ("2 frozen slots",
+  "epoch 1 evidence" label); making them fully data-driven is a safe follow-up, not
+  a blocker (epoch-1 values are immutable on-chain).
+- Regression: web 51/51 (17 files), typecheck, production build, format, and
+  source-boundary/secret checks green at push time.
