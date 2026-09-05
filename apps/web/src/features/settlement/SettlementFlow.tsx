@@ -24,7 +24,11 @@ import {
   recordSubmittedOperation,
 } from "../transactions/transactionUtils";
 import { sanitizeError, updateOperation } from "../../lib/operationStore";
-import { useDeployment } from "../../providers/DeploymentProvider";
+import {
+  canTransactDeployment,
+  TRANSACTION_NOT_READY_MESSAGE,
+  useDeployment,
+} from "../../providers/DeploymentProvider";
 import { useZama } from "../../providers/ZamaProvider";
 import { SettlementStatus, WithdrawalStatus } from "../../protocol/types";
 import type { ProtocolSnapshot, SettlementSnapshot } from "../../protocol/useProtocolSnapshot";
@@ -362,6 +366,10 @@ export function SettlementFlow({
       fail(new Error("Connect a Sepolia wallet before starting a settlement."));
       return;
     }
+    if (!canTransactDeployment(deployment.status) && !(await deployment.ensureTransactionReady())) {
+      fail(new Error(TRANSACTION_NOT_READY_MESSAGE));
+      return;
+    }
     let hash: Hex | undefined;
     try {
       setStage("signing");
@@ -409,6 +417,7 @@ export function SettlementFlow({
     chainId,
     fail,
     parsedCap,
+    deployment,
     onRefresh,
     poolAddress,
     waitForReceipt,
@@ -503,6 +512,13 @@ export function SettlementFlow({
         fail(new Error("Connect a Sepolia wallet before progressing this settlement."));
         return;
       }
+      if (
+        !canTransactDeployment(deployment.status) &&
+        !(await deployment.ensureTransactionReady())
+      ) {
+        fail(new Error(TRANSACTION_NOT_READY_MESSAGE));
+        return;
+      }
       let hash: Hex | undefined;
       try {
         setError(null);
@@ -533,7 +549,7 @@ export function SettlementFlow({
         fail(cause, hash);
       }
     },
-    [address, chainId, controllerAddress, fail, finish, walletClient, walletReady],
+    [address, chainId, controllerAddress, deployment, fail, finish, walletClient, walletReady],
   );
 
   const checkPending = useCallback(async () => {

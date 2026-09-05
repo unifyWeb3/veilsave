@@ -24,7 +24,11 @@ import { operationId, recordSubmittedOperation } from "../transactions/transacti
 import { publicAddress, publicDecryptValue } from "../transactions/transactionUtils";
 import { sanitizeError, updateOperation, type OperationKind } from "../../lib/operationStore";
 import { invalidatePrivateValues, usePrivateValue } from "../../lib/privacy";
-import { useDeployment } from "../../providers/DeploymentProvider";
+import {
+  canTransactDeployment,
+  TRANSACTION_NOT_READY_MESSAGE,
+  useDeployment,
+} from "../../providers/DeploymentProvider";
 import { useZama } from "../../providers/ZamaProvider";
 import { EpochStatus } from "../../protocol/types";
 import type { EpochSnapshot } from "../../protocol/useProtocolSnapshot";
@@ -286,6 +290,13 @@ export function DrawLifecycle({
         );
         return;
       }
+      if (
+        !canTransactDeployment(deployment.status) &&
+        !(await deployment.ensureTransactionReady())
+      ) {
+        fail(new Error(TRANSACTION_NOT_READY_MESSAGE), action.key);
+        return;
+      }
       let hash: Hex | undefined;
       try {
         setStage("signing");
@@ -311,7 +322,17 @@ export function DrawLifecycle({
         fail(cause, action.key, hash);
       }
     },
-    [address, chainId, completeReceipt, epoch.id, fail, poolAddress, walletClient, walletReady],
+    [
+      address,
+      chainId,
+      completeReceipt,
+      deployment,
+      epoch.id,
+      fail,
+      poolAddress,
+      walletClient,
+      walletReady,
+    ],
   );
 
   const finalizeWinner = useCallback(async () => {
@@ -325,6 +346,10 @@ export function DrawLifecycle({
         ),
         key,
       );
+      return;
+    }
+    if (!canTransactDeployment(deployment.status) && !(await deployment.ensureTransactionReady())) {
+      fail(new Error(TRANSACTION_NOT_READY_MESSAGE), key);
       return;
     }
     if (epoch.encryptedWinner === ZERO_HANDLE) {
@@ -363,6 +388,7 @@ export function DrawLifecycle({
     address,
     chainId,
     completeReceipt,
+    deployment,
     epoch.encryptedWinner,
     epoch.id,
     fail,

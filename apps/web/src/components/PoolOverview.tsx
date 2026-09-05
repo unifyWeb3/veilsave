@@ -140,7 +140,22 @@ export function PoolOverview({
   ) as Array<"empty" | "filled" | "mine" | "drawn">;
 
   return (
-    <div className="vs-dashboard">
+    <div className="vs-dashboard vs-dashboard--overhauled">
+      <section className="vs-readonly-banner" role="status">
+        <div className="vs-readonly-banner-icon">
+          <Icon name="shield-check" size={18} />
+        </div>
+        <div className="vs-readonly-banner-content">
+          <strong>LIVE PROTOCOL · READ ONLY</strong>
+          <p>
+            You&apos;re viewing verified live state from the Sepolia deployment. Transaction controls
+            are intentionally read-only while waiting for final release validation.
+          </p>
+        </div>
+        <div className="vs-readonly-banner-badge">
+          <StatusPill tone="verified">Verified Sepolia</StatusPill>
+        </div>
+      </section>
       {data.strategy.lossMode ? (
         <RecoveryBanner
           tone="critical"
@@ -163,25 +178,139 @@ export function PoolOverview({
         </RecoveryBanner>
       ) : null}
 
-      <section className="vs-dashboard-hero">
-        <div>
-          <div className="vs-label">Confidential prize-linked savings</div>
-          <h2>VeilSave pool</h2>
-          <p>
-            Save cUSDT in one of sixteen public slots. Your amount, weight, withdrawal claim, and
-            prize stay encrypted while the draw evidence remains inspectable.
-          </p>
+      <section className="vs-hero-stats-grid" aria-labelledby="live-pool-stats">
+        <div className="vs-stat-card vs-stat-card--primary">
+          <div className="vs-stat-header">
+            <div className="vs-label">Current Epoch</div>
+            <StatusPill tone="private" pulse>Epoch {data.currentEpochId.toString()} OPEN</StatusPill>
+          </div>
+          <div className="vs-stat-body">
+            <div className="vs-stat-figure">
+              <span className="vs-stat-huge">{occupied}</span>
+              <span className="vs-stat-denominator">/ 16</span>
+            </div>
+            <div className="vs-stat-subtitle">
+              <strong>{occupied} occupied slots</strong>
+              <span className="vs-stat-available">· {16 - occupied} available for deposit</span>
+            </div>
+          </div>
+          <div className="vs-stat-footer">
+            <span>Closes {dateTime(data.epoch.closesAt)}</span>
+            <button
+              type="button"
+              className="vs-stat-link"
+              onClick={() => navigate(`/app/draws/${data.currentEpochId.toString()}`)}
+            >
+              View draw verification <Icon name="arrow-right" size={13} />
+            </button>
+          </div>
         </div>
-        <div className="vs-dashboard-hero-actions">
-          <StrategyBadge mode={strategyMode} />
-          <Badge tone="neutral" icon="layers">
-            Sepolia · 16 fixed slots
-          </Badge>
-          <WalletControl compact />
+
+        <div className="vs-stat-card vs-stat-card--secondary">
+          <div className="vs-stat-header">
+            <div className="vs-label">Previous Epoch</div>
+            <StatusPill tone="terminal">Epoch {data.lastTerminalEpochId.toString()} TERMINAL</StatusPill>
+          </div>
+          <div className="vs-stat-body">
+            <div className="vs-stat-title-group">
+              <strong className="vs-stat-headline">No Winner / No Reroll</strong>
+              <p className="vs-stat-desc">
+                Epoch {data.lastTerminalEpochId.toString()} successfully completed with 2 frozen slots and a zero-weight rollover.
+              </p>
+            </div>
+          </div>
+          <div className="vs-stat-footer">
+            <span>Verified Sepolia proof</span>
+            <button
+              type="button"
+              className="vs-stat-link"
+              onClick={() => navigate(`/app/draws/${data.lastTerminalEpochId.toString()}`)}
+            >
+              Inspect epoch 1 evidence <Icon name="arrow-right" size={13} />
+            </button>
+          </div>
         </div>
       </section>
 
-      <div className="vs-dashboard-summary">
+      <section className="vs-panel vs-slot-overview-panel" aria-labelledby="slots-heading">
+        <div className="vs-panel-heading">
+          <div>
+            <div className="vs-label">Shared 16-slot Pool</div>
+            <h3 id="slots-heading">Participation &amp; Capacity</h3>
+          </div>
+          <div className="vs-slot-metrics-inline">
+            <Badge tone="private" icon="grid-2x2">
+              <strong>{occupied}</strong> Occupied
+            </Badge>
+            <Badge tone="verified" icon="check">
+              <strong>{16 - occupied}</strong> Available
+            </Badge>
+          </div>
+        </div>
+        <div className="vs-panel-body">
+          <div className="vs-slot-overview-grid">
+            <div className="vs-slot-grid-column">
+              <SlotGrid
+                slots={slotStates}
+                size="lg"
+                legend
+                caption="Amounts and savings balances remain strictly encrypted in your browser."
+              />
+            </div>
+            <div className="vs-slot-table-column">
+              <div className="vs-slot-table-wrap">
+                <table className="vs-slot-table">
+                  <caption className="sr-only">
+                    Public slot ownership and status. Amounts and odds remain encrypted.
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Slot</th>
+                      <th scope="col">Owner</th>
+                      <th scope="col">State</th>
+                      <th scope="col">Reference</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.slots.map((slot) => (
+                      <tr key={slot.index} className={slot.status !== SlotStatus.Free ? "is-occupied" : "is-available"}>
+                        <td><strong>{String(slot.index + 1).padStart(2, "0")}</strong></td>
+                        <td className="mono">{shorten(slot.owner)}</td>
+                        <td>
+                          <StatusPill
+                            tone={
+                              slot.status === SlotStatus.Active
+                                ? "verified"
+                                : slot.status === SlotStatus.Closing
+                                  ? "pending"
+                                  : "neutral"
+                            }
+                          >
+                            {slot.status === SlotStatus.Active
+                              ? "Occupied"
+                              : slot.status === SlotStatus.Closing
+                                ? "Closing"
+                                : slot.status === SlotStatus.Reserved
+                                  ? "Reserved"
+                                  : "Available"}
+                          </StatusPill>
+                        </td>
+                        <td>
+                          {slot.lastReferencedEpoch === 0n
+                            ? "—"
+                            : `Epoch ${slot.lastReferencedEpoch.toString()}`}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="vs-dashboard-summary vs-dashboard-summary--secondary">
         <section className="vs-panel vs-position-panel" aria-labelledby="position-title">
           <div className="vs-panel-heading">
             <div>

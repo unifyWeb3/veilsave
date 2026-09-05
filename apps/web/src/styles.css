@@ -2203,3 +2203,226 @@ button:disabled {
     animation: none;
   }
 }
+/* VeilSave Dashboard UX Overhaul Additions */
+.vs-dashboard--overhauled {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  max-width: 1320px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.vs-readonly-banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: color-mix(in oklab, var(--periwinkle-950) 40%, var(--surface-panel));
+  border: 1px solid color-mix(in oklab, var(--periwinkle-500) 25%, var(--border-hairline));
+  border-radius: var(--radius-lg);
+}
+
+.vs-readonly-banner-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  background: color-mix(in oklab, var(--periwinkle-500) 15%, transparent);
+  color: var(--periwinkle-300);
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+
+.vs-readonly-banner-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vs-readonly-banner-content strong {
+  font: var(--type-label);
+  color: var(--periwinkle-300);
+  letter-spacing: var(--tr-label);
+}
+
+.vs-readonly-banner-content p {
+  color: var(--text-secondary);
+  font: var(--type-body-sm);
+  margin: 0;
+}
+
+.vs-readonly-banner-badge {
+  flex-shrink: 0;
+}
+
+.vs-hero-stats-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 900px) {
+  .vs-hero-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vs-stat-card {
+  background: var(--surface-panel);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-xl);
+  padding: 26px 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.vs-stat-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--periwinkle-500);
+  opacity: 0.7;
+}
+
+.vs-stat-card--secondary::before {
+  background: var(--text-muted);
+  opacity: 0.3;
+}
+
+.vs-stat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.vs-stat-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vs-stat-figure {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.vs-stat-huge {
+  font-size: 52px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
+
+.vs-stat-denominator {
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.vs-stat-subtitle {
+  font: var(--type-body);
+  color: var(--text-secondary);
+}
+
+.vs-stat-subtitle strong {
+  color: var(--text-primary);
+}
+
+.vs-stat-available {
+  color: var(--text-private);
+  font-weight: 500;
+}
+
+.vs-stat-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vs-stat-headline {
+  font: var(--type-display-3);
+  color: var(--text-primary);
+}
+
+.vs-stat-desc {
+  font: var(--type-body);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.vs-stat-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-hairline);
+  font: var(--type-body-sm);
+  color: var(--text-muted);
+}
+
+.vs-stat-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--periwinkle-300);
+  font: var(--type-body-sm);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.vs-stat-link:hover {
+  color: var(--text-primary);
+}
+
+.vs-slot-overview-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1.2fr;
+  gap: 32px;
+  align-items: center;
+}
+
+@media (max-width: 980px) {
+  .vs-slot-overview-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vs-slot-metrics-inline {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.vs-slot-table tr.is-occupied td {
+  background: color-mix(in oklab, var(--periwinkle-950) 25%, transparent);
+}
+
+.vs-dashboard-summary--secondary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 900px) {
+  .vs-dashboard-summary--secondary {
+    grid-template-columns: 1fr;
+  }
+}

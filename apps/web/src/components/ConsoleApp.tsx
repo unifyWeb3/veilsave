@@ -32,6 +32,11 @@ export function ConsoleApp() {
   const location = useLocation();
   const navigate = useNavigate();
   const [sheet, setSheet] = useState<"deposit" | "withdraw" | null>(null);
+  const openSheet = (kind: "deposit" | "withdraw") => {
+    void deployment.ensureTransactionReady().then((ready) => {
+      if (ready) setSheet(kind);
+    });
+  };
   const [recoveryRecord, setRecoveryRecord] = useState<OperationRecord | null>(null);
   const strategyMode = deployment.manifest?.strategy.mode === "LIVE_STRATEGY" ? "live" : "test";
   const writesEnabled = deployment.status === "ready";
@@ -120,6 +125,7 @@ export function ConsoleApp() {
               >
                 Showing genuine Sepolia state from the bytecode-verified candidate deployment.
                 Deposit, withdrawal, and claim controls unlock after release validation completes.
+                Selecting a transaction re-checks release status automatically.
               </StateBlock>
             ) : null}
             {writesEnabled ? (
@@ -147,8 +153,8 @@ export function ConsoleApp() {
                 index
                 element={
                   <PoolOverview
-                    onDeposit={() => setSheet("deposit")}
-                    onWithdraw={() => setSheet("withdraw")}
+                    onDeposit={() => openSheet("deposit")}
+                    onWithdraw={() => openSheet("withdraw")}
                     settlementRecoveryRecord={
                       recoveryRecord?.kind === "settlement" ? recoveryRecord : null
                     }

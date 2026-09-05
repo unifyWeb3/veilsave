@@ -60,11 +60,21 @@ function renderProvider() {
 }
 
 function stubFetch(handler: () => Promise<unknown>) {
-  vi.stubGlobal(
-    "fetch",
-    vi.fn().mockImplementation(() => handler()),
-  );
+  const fetchMock = vi.fn().mockImplementation(() => handler());
+  vi.stubGlobal("fetch", fetchMock);
+  return fetchMock;
 }
+
+const activeFixture = () => ({
+  ...SEPOLIA_CANDIDATE_READ_MODEL,
+  status: "ACTIVE",
+  evidence: {
+    hcuReportSha256: `0x${"1".repeat(64)}`,
+    aclValidationSha256: `0x${"2".repeat(64)}`,
+    gasReportSha256: `0x${"3".repeat(64)}`,
+    aclValidatedAt: "2026-09-04T14:03:01.067Z",
+  },
+});
 
 const codeChecksOk = [
   {
@@ -77,8 +87,8 @@ const codeChecksOk = [
 ];
 
 describe("DeploymentProvider manifest gate", () => {
-  it("reports read-only (never ready) when the ACTIVE fetch fails but the candidate verifies", async () => {
-    stubFetch(async () => ({ ok: false, status: 404, json: async () => ({}) }));
+  it("initializes read-only from the candidate without fetching the future ACTIVE manifest", async () => {
+    const fetchMock = stubFetch(async () => ({ ok: false, status: 404, json: async () => ({}) }));
     mockVerifyManifestCode.mockResolvedValue(codeChecksOk);
     try {
       const handle = renderProvider();
@@ -89,59 +99,39 @@ describe("DeploymentProvider manifest gate", () => {
       expect(handle.latest().source).toBe("candidate");
       expect(handle.latest().manifest?.status).toBe(DeploymentStatus.Rehearsal);
       expect(handle.latest().error).toBeNull();
+      expect(fetchMock).not.toHaveBeenCalled();
       expect(mockVerifyManifestCode).toHaveBeenCalled();
     } finally {
       vi.unstubAllGlobals();
     }
   });
 
-  it("stays loading (not error) while candidate verification is still running", async () => {
+  it("keeps read-only when write readiness finds no ACTIVE manifest", async () => {
     stubFetch(async () => ({ ok: false, status: 404, json: async () => ({}) }));
-    mockVerifyManifestCode.mockReturnValue(new Promise(() => {}));
-    try {
-      const handle = renderProvider();
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      expect(handle.latest().status).toBe("loading");
-      expect(handle.latest().error).toBeNull();
-    } finally {
-      vi.unstubAllGlobals();
-    }
-  });
-
-  it("reports error when both the ACTIVE fetch and candidate verification fail", async () => {
-    stubFetch(async () => ({ ok: false, status: 404, json: async () => ({}) }));
-    mockVerifyManifestCode.mockRejectedValue(new Error("Deployment bytecode does not match"));
-    try {
-      const handle = renderProvider();
-      await vi.waitFor(() => expect(handle.latest().status).toBe("error"), {
-        timeout: 10_000,
-      });
-      expect(handle.latest().status).not.toBe("ready");
-      expect(handle.latest().manifest).toBeNull();
-      expect(handle.latest().error).toMatch(/bytecode/);
-    } finally {
-      vi.unstubAllGlobals();
-    }
-  });
-
-  it("reports ready only for a fetched ACTIVE manifest with verified bytecode", async () => {
-    const activeFixture = {
-      ...SEPOLIA_CANDIDATE_READ_MODEL,
-      status: "ACTIVE",
-      evidence: {
-        hcuReportSha256: `0x${"1".repeat(64)}`,
-        aclValidationSha256: `0x${"2".repeat(64)}`,
-        gasReportSha256: `0x${"3".repeat(64)}`,
-        aclValidatedAt: "2026-09-04T14:03:01.067Z",
-      },
-    };
-    stubFetch(async () => ({ ok: true, status: 200, json: async () => activeFixture }));
     mockVerifyManifestCode.mockResolvedValue(codeChecksOk);
     try {
       const handle = renderProvider();
-      await vi.waitFor(() => expect(handle.latest().status).toBe("ready"), {
+      await vi.waitFor(() => expect(handle.latest().status).toBe("read-only"), {
         timeout: 10_000,
       });
+      await expect(handle.latest().ensureTransactionReady()).resolves.toBe(false);
+      expect(handle.latest().status).toBe("read-only");
+      expect(handle.latest().manifest?.status).toBe(DeploymentStatus.Rehearsal);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("promotes to ready only for a fetched ACTIVE manifest with verified bytecode", async () => {
+    stubFetch(async () => ({ ok: true, status: 200, json: async () => activeFixture() }));
+    mockVerifyManifestCode.mockResolvedValue(codeChecksOk);
+    try {
+      const handle = renderProvider();
+      await vi.waitFor(() => expect(handle.latest().status).toBe("read-only"), {
+        timeout: 10_000,
+      });
+      await expect(handle.latest().ensureTransactionReady()).resolves.toBe(true);
+      expect(handle.latest().status).toBe("ready");
       expect(handle.latest().source).toBe("active");
       expect(handle.latest().manifest?.status).toBe("ACTIVE");
     } finally {
@@ -149,26 +139,37 @@ describe("DeploymentProvider manifest gate", () => {
     }
   });
 
-  it("fails closed when a fetched manifest does not match live bytecode", async () => {
-    const activeFixture = {
-      ...SEPOLIA_CANDIDATE_READ_MODEL,
-      status: "ACTIVE",
-      evidence: {
-        hcuReportSha256: `0x${"1".repeat(64)}`,
-        aclValidationSha256: `0x${"2".repeat(64)}`,
-        gasReportSha256: `0x${"3".repeat(64)}`,
-        aclValidatedAt: "2026-09-04T14:03:01.067Z",
-      },
-    };
-    stubFetch(async () => ({ ok: true, status: 200, json: async () => activeFixture }));
+  it("fails closed on bytecode mismatch: stays read-only, never ready", async () => {
+    stubFetch(async () => ({ ok: true, status: 200, json: async () => activeFixture() }));
+    mockVerifyManifestCode.mockImplementation(async (_client: unknown, manifest: unknown) =>
+      (manifest as { status?: unknown }).status === "ACTIVE"
+        ? Promise.reject(new Error("Deployment bytecode does not match"))
+        : codeChecksOk,
+    );
+    try {
+      const handle = renderProvider();
+      await vi.waitFor(() => expect(handle.latest().status).toBe("read-only"), {
+        timeout: 10_000,
+      });
+      // A tampered ACTIVE manifest must never promote, while verified reads stay up.
+      await expect(handle.latest().ensureTransactionReady()).resolves.toBe(false);
+      expect(handle.latest().status).toBe("read-only");
+      expect(handle.latest().source).toBe("candidate");
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("reports error when candidate verification fails and never touches writes", async () => {
+    const fetchMock = stubFetch(async () => ({ ok: false, status: 404, json: async () => ({}) }));
     mockVerifyManifestCode.mockRejectedValue(new Error("Deployment bytecode does not match"));
     try {
       const handle = renderProvider();
       await vi.waitFor(() => expect(handle.latest().status).toBe("error"), {
         timeout: 10_000,
       });
-      expect(handle.latest().status).not.toBe("read-only");
-      expect(handle.latest().status).not.toBe("ready");
+      expect(handle.latest().manifest).toBeNull();
+      expect(fetchMock).not.toHaveBeenCalled();
     } finally {
       vi.unstubAllGlobals();
     }

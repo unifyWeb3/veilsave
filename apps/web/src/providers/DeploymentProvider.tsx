@@ -1,4 +1,12 @@
-import { createContext, useContext, useMemo, type PropsWithChildren } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+  type PropsWithChildren,
+} from "react";
 import { useQuery } from "@tanstack/react-query";
 import { usePublicClient } from "wagmi";
 
@@ -20,6 +28,9 @@ export type DeploymentStatusState = "loading" | "ready" | "read-only" | "error";
 
 export type DeploymentManifestModel = VeilSaveDeploymentManifest | CandidateReadModel;
 
+export const TRANSACTION_NOT_READY_MESSAGE =
+  "Transactions unlock after the ACTIVE release manifest is published and verified. The console remains read-only until then.";
+
 interface DeploymentContextValue {
   runtime: RuntimeConfig;
   manifest: DeploymentManifestModel | null;
@@ -29,6 +40,13 @@ interface DeploymentContextValue {
   status: DeploymentStatusState;
   error: string | null;
   retry: () => void;
+  /**
+   * Establishes write readiness on demand: fetches the future ACTIVE manifest,
+   * schema-validates it, and verifies its runtime bytecode against live chain.
+   * Never runs during read-only initialization; call only from explicit
+   * transaction intent. Resolves true (and promotes to ready) or false.
+   */
+  ensureTransactionReady: () => Promise<boolean>;
 }
 
 const DeploymentContext = createContext<DeploymentContextValue | null>(null);
@@ -53,12 +71,12 @@ export function DeploymentProvider({
   children,
 }: PropsWithChildren<{ runtime: RuntimeConfig }>) {
   const publicClient = usePublicClient({ chainId: runtime.chainId });
-  const activeQuery = useQuery({
-    queryKey: ["veilsave", "manifest", runtime.manifestUrl],
-    queryFn: () => fetchDeploymentManifest(runtime.manifestUrl),
-    staleTime: 5 * 60_000,
-    retry: 2,
-  });
+  const publicClientRef = useRef(publicClient);
+  publicClientRef.current = publicClient;
+
+  // The candidate is the only initialization input. The future ACTIVE manifest
+  // is never fetched, retried, or awaited on this path, so a missing manifest
+  // file cannot slow or break public read-only rendering.
   const candidate = useMemo(() => {
     try {
       return validateCandidateReadModel(SEPOLIA_CANDIDATE_READ_MODEL);
@@ -66,55 +84,68 @@ export function DeploymentProvider({
       return null;
     }
   }, []);
-  const activeManifest = activeQuery.data ?? null;
-  // The ACTIVE manifest is authoritative when present. The candidate is a
-  // read-only fallback and is never allowed to satisfy transaction gating.
-  const codeTarget = activeManifest ?? candidate;
   const codeQuery = useQuery({
-    queryKey: [
-      "veilsave",
-      "manifest-code",
-      codeTarget?.sourceCommit,
-      activeManifest ? "active" : "candidate",
-    ],
+    queryKey: ["veilsave", "manifest-code", candidate?.sourceCommit, "candidate"],
     queryFn: async () => {
-      if (!publicClient || !codeTarget) throw new Error("Public chain client is unavailable");
-      return verifyManifestCode(publicClient, codeTarget);
+      if (!publicClient || !candidate) throw new Error("Public chain client is unavailable");
+      return verifyManifestCode(publicClient, candidate);
     },
-    enabled: Boolean(publicClient && codeTarget),
+    enabled: Boolean(publicClient && candidate),
     staleTime: 5 * 60_000,
     retry: 1,
   });
+
+  const [promoted, setPromoted] = useState<{
+    manifest: VeilSaveDeploymentManifest;
+    checks: CodeHashCheck[];
+  } | null>(null);
+  const promotionPendingRef = useRef<Promise<boolean> | null>(null);
 
   let status: DeploymentStatusState = "loading";
   let manifest: DeploymentManifestModel | null = null;
   let source: "active" | "candidate" | null = null;
   let error: string | null = null;
 
-  if (activeManifest && codeQuery.data) {
+  if (promoted) {
     status = "ready";
-    manifest = activeManifest;
+    manifest = promoted.manifest;
     source = "active";
-  } else if (activeManifest && codeQuery.error) {
-    // Fail closed: a fetched manifest that does not match live chain bytecode
-    // must never degrade silently into the candidate path.
-    status = "error";
-    error = errorMessage(codeQuery.error);
-  } else if (activeManifest) {
-    status = "loading";
-    manifest = activeManifest;
-  } else if (activeQuery.error && candidate && codeQuery.data) {
+  } else if (candidate && codeQuery.data) {
     status = "read-only";
     manifest = candidate;
     source = "candidate";
-  } else if (activeQuery.error && candidate && publicClient && !codeQuery.isError) {
-    // The ACTIVE manifest is unreachable, but the candidate path is still
-    // verifying. Stay in loading instead of flashing a terminal error.
-    status = "loading";
-  } else if (activeQuery.error) {
+  } else if (codeQuery.error || candidate === null) {
     status = "error";
-    error = errorMessage(codeQuery.error ?? activeQuery.error);
+    error = errorMessage(
+      codeQuery.error ?? new Error("The candidate deployment configuration is invalid"),
+    );
   }
+
+  const statusRef = useRef(status);
+  statusRef.current = status;
+
+  const ensureTransactionReady = useCallback(async (): Promise<boolean> => {
+    if (statusRef.current === "ready") return true;
+    if (promotionPendingRef.current) return promotionPendingRef.current;
+    const run = (async () => {
+      try {
+        const fetched = await fetchDeploymentManifest(runtime.manifestUrl);
+        const client = publicClientRef.current;
+        if (!client) return false;
+        const checks = await verifyManifestCode(client, fetched);
+        setPromoted({ manifest: fetched, checks });
+        return true;
+      } catch {
+        return false;
+      }
+    })();
+    promotionPendingRef.current = run;
+    try {
+      return await run;
+    } finally {
+      promotionPendingRef.current = null;
+    }
+  }, [runtime.manifestUrl]);
 
   return (
     <DeploymentContext.Provider
@@ -122,13 +153,13 @@ export function DeploymentProvider({
         runtime,
         manifest,
         source,
-        codeChecks: codeQuery.data ?? [],
+        codeChecks: promoted?.checks ?? codeQuery.data ?? [],
         status,
         error,
         retry: () => {
-          void activeQuery.refetch();
           void codeQuery.refetch();
         },
+        ensureTransactionReady,
       }}
     >
       {children}
