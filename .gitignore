@@ -36,3 +36,10 @@ secrets/
 deployments/local/
 evidence/private/
 **/evidence/private/
+
+# Local screen recordings and video captures (never commit clips)
+Recording *.mp4
+Recordings/
+*.mp4
+*.mov
+*.webm

@@ -1,9 +1,8 @@
 import { useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAccount, useChainId } from "wagmi";
 
 import { ConfidentialValue } from "./ConfidentialValue";
-import { DrawTimeline } from "./DrawTimeline";
 import { WalletControl } from "./WalletControl";
 import {
   Badge,
@@ -11,17 +10,15 @@ import {
   Icon,
   PrivacyCallout,
   RecoveryBanner,
-  SectionHead,
   SlotGrid,
   StateBlock,
   StatusPill,
-  StrategyBadge,
 } from "../design/Primitives";
 import { useUserDecryptor } from "../hooks/useUserDecryptor";
 import { usePrivateValue } from "../lib/privacy";
 import { useDeployment } from "../providers/DeploymentProvider";
-import { SlotStatus, WithdrawalStatus, withdrawalStatusLabels } from "../protocol/types";
-import { useProtocolSnapshot } from "../protocol/useProtocolSnapshot";
+import { EpochStatus, SlotStatus, WithdrawalStatus, epochStatusLabels, withdrawalStatusLabels } from "../protocol/types";
+import { useEpochSnapshot, useProtocolSnapshot } from "../protocol/useProtocolSnapshot";
 import { SettlementFlow } from "../features/settlement/SettlementFlow";
 import type { OperationRecord } from "../lib/operationStore";
 
@@ -54,17 +51,22 @@ export function PoolOverview({
   onWithdraw?: () => void;
   settlementRecoveryRecord?: OperationRecord | null;
 }) {
-  const navigate = useNavigate();
   const { address } = useAccount();
   const chainId = useChainId();
-  const { manifest } = useDeployment();
+  const { manifest, runtime, status: deploymentStatus } = useDeployment();
   const { decryptHandle: decryptUserHandle } = useUserDecryptor();
   const snapshot = useProtocolSnapshot();
+  // Read-only alignment: terminal-epoch detail reuses the existing epoch reader.
+  // No new ABI, no writes — undefined keeps the query disabled until snapshot lands.
+  const lastTerminalId =
+    snapshot.data && snapshot.data.lastTerminalEpochId !== 0n
+      ? snapshot.data.lastTerminalEpochId
+      : undefined;
+  const terminalEpoch = useEpochSnapshot(lastTerminalId);
   const position = snapshot.data?.position;
   const poolAddress = manifest?.contracts.confidentialPrizePool.address as
     | `0x${string}`
     | undefined;
-  const strategyMode = manifest?.strategy.mode === "LIVE_STRATEGY" ? "live" : "test";
 
   const decryptHandle = useCallback(
     async (handle: `0x${string}`): Promise<bigint> => {
@@ -98,27 +100,23 @@ export function PoolOverview({
 
   if (snapshot.isLoading)
     return (
-      <div className="vs-console-content">
-        <StateBlock kind="loading" title="Reading the public pool state">
-          The console is checking epoch, slot, VRF, and strategy state from Sepolia.
-        </StateBlock>
-      </div>
+      <StateBlock kind="loading" title="Reading the public pool state">
+        The console is checking epoch, slot, VRF, and strategy state from Sepolia.
+      </StateBlock>
     );
   if (snapshot.isError || !snapshot.data)
     return (
-      <div className="vs-console-content">
-        <StateBlock
-          kind="offline"
-          title="Public pool state is unavailable"
-          safety="Your principal is unaffected."
-          actionLabel="Retry RPC read"
-          onAction={() => void snapshot.refetch()}
-        >
-          {snapshot.error instanceof Error
-            ? snapshot.error.message
-            : "The configured Sepolia RPC did not return a current snapshot."}
-        </StateBlock>
-      </div>
+      <StateBlock
+        kind="offline"
+        title="Public pool state is unavailable"
+        safety="Your principal is unaffected."
+        actionLabel="Retry RPC read"
+        onAction={() => void snapshot.refetch()}
+      >
+        {snapshot.error instanceof Error
+          ? snapshot.error.message
+          : "The configured Sepolia RPC did not return a current snapshot."}
+      </StateBlock>
     );
 
   const data = snapshot.data;
@@ -141,21 +139,23 @@ export function PoolOverview({
 
   return (
     <div className="vs-dashboard vs-dashboard--overhauled">
-      <section className="vs-readonly-banner" role="status">
-        <div className="vs-readonly-banner-icon">
-          <Icon name="shield-check" size={18} />
-        </div>
-        <div className="vs-readonly-banner-content">
-          <strong>LIVE PROTOCOL · READ ONLY</strong>
-          <p>
-            You&apos;re viewing verified live state from the Sepolia deployment. Transaction controls
-            are intentionally read-only while waiting for final release validation.
-          </p>
-        </div>
-        <div className="vs-readonly-banner-badge">
-          <StatusPill tone="verified">Verified Sepolia</StatusPill>
-        </div>
-      </section>
+      {deploymentStatus !== "ready" ? (
+        <section className="vs-readonly-banner" role="status">
+          <div className="vs-readonly-banner-icon">
+            <Icon name="shield-check" size={18} />
+          </div>
+          <div className="vs-readonly-banner-content">
+            <strong>LIVE PROTOCOL · READ ONLY</strong>
+            <p>
+              You&apos;re viewing verified live state from the Sepolia deployment. Transaction
+              controls are intentionally read-only while waiting for final release validation.
+            </p>
+          </div>
+          <div className="vs-readonly-banner-badge">
+            <StatusPill tone="verified">Verified Sepolia</StatusPill>
+          </div>
+        </section>
+      ) : null}
       {data.strategy.lossMode ? (
         <RecoveryBanner
           tone="critical"
@@ -182,7 +182,23 @@ export function PoolOverview({
         <div className="vs-stat-card vs-stat-card--primary">
           <div className="vs-stat-header">
             <div className="vs-label">Current Epoch</div>
-            <StatusPill tone="private" pulse>Epoch {data.currentEpochId.toString()} OPEN</StatusPill>
+            <StatusPill
+              tone={
+                data.epoch.status === EpochStatus.Open
+                  ? "private"
+                  : data.epoch.status === EpochStatus.Terminal
+                    ? "verified"
+                    : data.epoch.status === EpochStatus.Abandoned
+                      ? "terminal"
+                      : "pending"
+              }
+              pulse={
+                data.epoch.status !== EpochStatus.Terminal &&
+                data.epoch.status !== EpochStatus.Abandoned
+              }
+            >
+              Epoch {data.currentEpochId.toString()} · {epochStatusLabels[data.epoch.status]}
+            </StatusPill>
           </div>
           <div className="vs-stat-body">
             <div className="vs-stat-figure">
@@ -196,38 +212,60 @@ export function PoolOverview({
           </div>
           <div className="vs-stat-footer">
             <span>Closes {dateTime(data.epoch.closesAt)}</span>
-            <button
-              type="button"
-              className="vs-stat-link"
-              onClick={() => navigate(`/app/draws/${data.currentEpochId.toString()}`)}
-            >
+            <Link className="vs-stat-link" to={`/app/draws/${data.currentEpochId.toString()}`}>
               View draw verification <Icon name="arrow-right" size={13} />
-            </button>
+            </Link>
           </div>
         </div>
 
         <div className="vs-stat-card vs-stat-card--secondary">
           <div className="vs-stat-header">
             <div className="vs-label">Previous Epoch</div>
-            <StatusPill tone="terminal">Epoch {data.lastTerminalEpochId.toString()} TERMINAL</StatusPill>
+            <StatusPill
+              tone={
+                terminalEpoch.data?.status === EpochStatus.Abandoned ? "terminal" : "verified"
+              }
+            >
+              Epoch {data.lastTerminalEpochId.toString()} ·{" "}
+              {terminalEpoch.data
+                ? epochStatusLabels[terminalEpoch.data.status]
+                : "Terminal"}
+            </StatusPill>
           </div>
           <div className="vs-stat-body">
             <div className="vs-stat-title-group">
-              <strong className="vs-stat-headline">No Winner / No Reroll</strong>
+              <strong className="vs-stat-headline">
+                {lastTerminalId === undefined
+                  ? "No terminal epoch yet"
+                  : terminalEpoch.isLoading
+                    ? "Reading terminal epoch…"
+                    : terminalEpoch.isError || !terminalEpoch.data
+                      ? `Epoch ${data.lastTerminalEpochId.toString()} terminal`
+                      : terminalEpoch.data.winnerFinalized &&
+                          terminalEpoch.data.finalizedWinner.toLowerCase() !== ZERO_ADDRESS
+                        ? `Winner ${shorten(terminalEpoch.data.finalizedWinner)}`
+                        : terminalEpoch.data.status === EpochStatus.Abandoned
+                          ? "Abandoned · no reroll"
+                          : "No winner · terminal"}
+              </strong>
               <p className="vs-stat-desc">
-                Epoch {data.lastTerminalEpochId.toString()} successfully completed with 2 frozen slots and a zero-weight rollover.
+                {terminalEpoch.data
+                  ? `Finalized with ${terminalEpoch.data.frozenSlotCount} frozen slots. Open evidence for the full proof trail.`
+                  : terminalEpoch.isLoading
+                    ? "Reading canonical epoch state from Sepolia."
+                    : "Terminal epoch recorded onchain. Open evidence for the full proof trail."}
               </p>
             </div>
           </div>
           <div className="vs-stat-footer">
             <span>Verified Sepolia proof</span>
-            <button
-              type="button"
+            <Link
               className="vs-stat-link"
-              onClick={() => navigate(`/app/draws/${data.lastTerminalEpochId.toString()}`)}
+              to={`/app/draws/${data.lastTerminalEpochId.toString()}`}
             >
-              Inspect epoch 1 evidence <Icon name="arrow-right" size={13} />
-            </button>
+              Inspect epoch {data.lastTerminalEpochId.toString()} evidence{" "}
+              <Icon name="arrow-right" size={13} />
+            </Link>
           </div>
         </div>
       </section>
@@ -235,7 +273,7 @@ export function PoolOverview({
       <section className="vs-panel vs-slot-overview-panel" aria-labelledby="slots-heading">
         <div className="vs-panel-heading">
           <div>
-            <div className="vs-label">Shared 16-slot Pool</div>
+            <div className="vs-label">02 · Participation · 16-slot pool</div>
             <h3 id="slots-heading">Participation &amp; Capacity</h3>
           </div>
           <div className="vs-slot-metrics-inline">
@@ -275,7 +313,20 @@ export function PoolOverview({
                     {data.slots.map((slot) => (
                       <tr key={slot.index} className={slot.status !== SlotStatus.Free ? "is-occupied" : "is-available"}>
                         <td><strong>{String(slot.index + 1).padStart(2, "0")}</strong></td>
-                        <td className="mono">{shorten(slot.owner)}</td>
+                        <td className="mono">
+                          {slot.owner.toLowerCase() === ZERO_ADDRESS ? (
+                            <span className="muted">Open</span>
+                          ) : (
+                            <a
+                              className="vs-slot-link mono"
+                              href={`${runtime.explorerUrl}/address/${slot.owner}`}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              {shorten(slot.owner)}
+                            </a>
+                          )}
+                        </td>
                         <td>
                           <StatusPill
                             tone={
@@ -296,9 +347,16 @@ export function PoolOverview({
                           </StatusPill>
                         </td>
                         <td>
-                          {slot.lastReferencedEpoch === 0n
-                            ? "—"
-                            : `Epoch ${slot.lastReferencedEpoch.toString()}`}
+                          {slot.lastReferencedEpoch === 0n ? (
+                            "—"
+                          ) : (
+                            <Link
+                              className="vs-slot-link"
+                              to={`/app/draws/${slot.lastReferencedEpoch.toString()}`}
+                            >
+                              Epoch {slot.lastReferencedEpoch.toString()}
+                            </Link>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -314,7 +372,7 @@ export function PoolOverview({
         <section className="vs-panel vs-position-panel" aria-labelledby="position-title">
           <div className="vs-panel-heading">
             <div>
-              <div className="vs-label">Your position</div>
+              <div className="vs-label">03 · Your position</div>
               <h3 id="position-title">
                 {address && position?.occupied
                   ? `Slot ${(position.slot + 1).toString().padStart(2, "0")}`
@@ -373,17 +431,23 @@ export function PoolOverview({
               </StateBlock>
             )}
             <div className="vs-actions">
-              <Button icon="arrow-down-to-line" onClick={onDeposit} disabled={!address}>
-                Deposit
-              </Button>
-              <Button
-                tone="secondary"
-                icon="arrow-up-from-line"
-                onClick={onWithdraw}
-                disabled={!address || !position?.occupied}
-              >
-                Withdraw
-              </Button>
+              {address ? (
+                <>
+                  <Button icon="arrow-down-to-line" onClick={onDeposit}>
+                    Deposit
+                  </Button>
+                  <Button
+                    tone="secondary"
+                    icon="arrow-up-from-line"
+                    onClick={onWithdraw}
+                    disabled={!position?.occupied}
+                  >
+                    Withdraw
+                  </Button>
+                </>
+              ) : (
+                <WalletControl />
+              )}
             </div>
             <p className="vs-private-status">
               Reveals are independent, explicit, and local to this session. Your wallet address and
@@ -391,7 +455,61 @@ export function PoolOverview({
             </p>
           </div>
         </section>
-        <DrawTimeline epoch={data.epoch} compact={false} />
+        <section className="vs-panel vs-draw-summary" aria-labelledby="draw-summary-title">
+          <div className="vs-panel-heading">
+            <div>
+              <div className="vs-label">04 · Verification</div>
+              <h3 id="draw-summary-title">Epoch {data.currentEpochId.toString()}</h3>
+            </div>
+            <StatusPill
+              tone={
+                data.epoch.status === EpochStatus.Open
+                  ? "private"
+                  : data.epoch.status === EpochStatus.Terminal
+                    ? "verified"
+                    : data.epoch.status === EpochStatus.Abandoned
+                      ? "terminal"
+                      : "pending"
+              }
+            >
+              {epochStatusLabels[data.epoch.status]}
+            </StatusPill>
+          </div>
+          <div className="vs-panel-body">
+            <div className="vs-history-list">
+              <div>
+                <span>Closes</span>
+                <strong>{dateTime(data.epoch.closesAt)}</strong>
+              </div>
+              <div>
+                <span>Frozen slots</span>
+                <strong>{data.epoch.frozenSlotCount} / 16</strong>
+              </div>
+              <div>
+                <span>VRF request</span>
+                <strong className="mono">
+                  {data.epoch.requestId === 0n ? "Not requested" : data.epoch.requestId.toString()}
+                </strong>
+              </div>
+              <div>
+                <span>Proof</span>
+                <strong>Full trail on draws page</strong>
+              </div>
+            </div>
+            <div className="vs-queue-actions">
+              <p>
+                The 6-step timeline, freeze commitment, VRF evidence, and winner proof live on
+                the draw-verification route. This dashboard keeps the live status only.
+              </p>
+              <Link
+                className="vs-stat-link"
+                to={`/app/draws/${data.currentEpochId.toString()}`}
+              >
+                Open full verification <Icon name="arrow-right" size={13} />
+              </Link>
+            </div>
+          </div>
+        </section>
       </div>
 
       {data.withdrawal ? (
@@ -465,122 +583,26 @@ export function PoolOverview({
         recoveryRecord={settlementRecoveryRecord}
       />
 
-      <section className="vs-panel vs-slot-panel" aria-labelledby="pool-state-title">
-        <div className="vs-panel-heading">
-          <div>
-            <div className="vs-label">Shared pool</div>
-            <h3 id="pool-state-title">Public participation</h3>
-          </div>
-          <Badge tone="private" icon="grid-2x2">
-            {occupied} of 16 occupied
-          </Badge>
-        </div>
-        <div className="vs-panel-body">
-          <div className="vs-dashboard-summary">
-            <SlotGrid
-              slots={slotStates}
-              size="md"
-              legend
-              caption="Slot existence and ownership are public. Amounts and odds are not."
-            />
-            <div className="vs-slot-table-wrap">
-              <table className="vs-slot-table">
-                <caption className="sr-only">
-                  Public slot ownership and status. Amounts and odds remain encrypted.
-                </caption>
-                <thead>
-                  <tr>
-                    <th scope="col">Slot</th>
-                    <th scope="col">Owner</th>
-                    <th scope="col">State</th>
-                    <th scope="col">Reference</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.slots.map((slot) => (
-                    <tr key={slot.index}>
-                      <td>{String(slot.index + 1).padStart(2, "0")}</td>
-                      <td className="mono">{shorten(slot.owner)}</td>
-                      <td>
-                        <StatusPill
-                          tone={
-                            slot.status === SlotStatus.Active
-                              ? "verified"
-                              : slot.status === SlotStatus.Closing
-                                ? "pending"
-                                : "neutral"
-                          }
-                        >
-                          {slot.status === SlotStatus.Active
-                            ? "Saving"
-                            : slot.status === SlotStatus.Closing
-                              ? "Closing"
-                              : slot.status === SlotStatus.Reserved
-                                ? "Reserved"
-                                : "Available"}
-                        </StatusPill>
-                      </td>
-                      <td>
-                        {slot.lastReferencedEpoch === 0n
-                          ? "—"
-                          : `Epoch ${slot.lastReferencedEpoch.toString()}`}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="vs-panel vs-panel--quiet" aria-labelledby="epoch-summary-title">
-        <div className="vs-panel-body">
-          <SectionHead
-            label="Current epoch"
-            title={`Epoch ${data.currentEpochId.toString()}`}
-            description={`Closes ${dateTime(data.epoch.closesAt)} · ${data.epoch.frozenSlotCount} slots in the latest frozen snapshot.`}
-            actions={
-              <Button
-                tone="ghost"
-                size="sm"
-                iconAfter="arrow-right"
-                onClick={() => navigate(`/app/draws/${data.currentEpochId.toString()}`)}
-              >
-                View verification
-              </Button>
-            }
-          />
-          <div className="vs-history-list" id="epoch-summary-title">
-            <div>
-              <span>Epoch state</span>
-              <strong>
-                {data.epoch.status === 1
-                  ? "Open for deposits"
-                  : data.epoch.status === 2
-                    ? "Eligibility frozen"
-                    : "Draw lifecycle active"}
-              </strong>
-            </div>
-            <div>
-              <span>Next maturity</span>
-              <strong>One complete epoch</strong>
-            </div>
-            <div>
-              <span>Strategy</span>
-              <strong>
-                {strategyMode === "live" ? "LIVE STRATEGY YIELD" : "TEST YIELD · no APY claim"}
-              </strong>
-            </div>
-            <div>
-              <span>Principal</span>
-              <strong>Withdrawable at all times</strong>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <PrivacyCallout />
+      <PrivacyCallout compact />
+      <footer className="vs-console-footer" aria-label="Provenance">
+        <span>
+          Block {data.blockNumber.toString()} · Pool{" "}
+          {poolAddress ? (
+            <a
+              href={`${runtime.explorerUrl}/address/${poolAddress}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {shorten(poolAddress)}
+            </a>
+          ) : (
+            "unavailable"
+          )}
+        </span>
+        <a href={`${runtime.explorerUrl}`} target="_blank" rel="noreferrer">
+          Sepolia explorer <Icon name="arrow-right" size={12} />
+        </a>
+      </footer>
     </div>
   );
 }

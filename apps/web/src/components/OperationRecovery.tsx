@@ -62,7 +62,9 @@ export function OperationRecovery({
       <div className="vs-operation-recovery-heading">
         <div>
           <div className="vs-label">Browser recovery</div>
-          <h2 id="recovery-title">Operations that need a check</h2>
+          <p className="vs-operation-recovery-title" id="recovery-title">
+            <strong>Operations that need a check</strong>
+          </p>
         </div>
         <StatusPill tone="pending" icon="refresh-cw">
           Reload-safe

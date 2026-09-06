@@ -68,12 +68,6 @@ export function ConsoleApp() {
         secondary={secondary}
         active={active}
         onNavigate={onNavigate}
-        footer={
-          <>
-            <StrategyBadge mode={strategyMode} />
-            <WalletControl compact />
-          </>
-        }
       />
       <main className="vs-console-main">
         <header className="vs-console-topbar">
