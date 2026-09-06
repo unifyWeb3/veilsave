@@ -354,4 +354,4 @@ Sepolia — inside every release budget with double-digit margin.
 
 ## License
 
-No repository license has been selected yet. Do not assume redistribution rights until the project owner adds one.
+MIT — see [LICENSE](LICENSE).
