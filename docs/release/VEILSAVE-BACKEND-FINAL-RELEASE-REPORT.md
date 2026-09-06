@@ -336,3 +336,12 @@ regression test using the genuine epoch-1 values.
 encrypted draw — and the encrypted draw output publicly decrypts to the zero address,
 so the epoch terminalized with no winner, no reroll, and the prize rolled forward.
 `0x6282…` is the ciphertext reference of that outcome, not a winner."
+
+Production verification 2026-09-05 (deployment `veilsave-k3wq3xi5n`): `/app/draws/1`
+renders `OUTCOME HANDLE 0x6282993c29…` with "decrypts to the zero address: no winner",
+`Outcome proof and finality` linked to the `EpochNoWinner` transaction, and
+`No winner · terminal`; `/app` dashboard shows Epoch 2 OPEN 2/16 + Epoch 1 TERMINAL
+No Winner / No Reroll; `/app/history` shows Epoch 2 Winner Pending. The zero address
+appears nowhere as a winner on any route. The generic privacy-boundary line "Winner
+address after finalization" remains as documented protocol disclosure (a winner address
+is public when one exists), not as an epoch-1 claim.
