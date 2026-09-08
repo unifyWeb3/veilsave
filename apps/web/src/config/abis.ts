@@ -78,7 +78,9 @@ export const tokenAbi = parseAbi([
   "function rate() view returns (uint256)",
   "function confidentialBalanceOf(address account) view returns (bytes32)",
   "function wrap(address to, uint256 amount) returns (bytes32)",
-  "function confidentialTransferAndCall(address to, bytes32 amount, bytes inputProof, bytes data) returns (bool)",
+  // ERC-7984 returns the encrypted amount actually transferred (euint64),
+  // represented as bytes32 in the ABI. It is not a Solidity bool.
+  "function confidentialTransferAndCall(address to, bytes32 amount, bytes inputProof, bytes data) returns (bytes32)",
   "function unwrap(address from, address to, bytes32 amount) returns (bytes32)",
   "function unwrap(address from, address to, bytes32 amount, bytes inputProof) returns (bytes32)",
   "function unwrapAmount(bytes32 requestId) view returns (bytes32)",

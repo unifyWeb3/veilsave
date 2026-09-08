@@ -360,7 +360,7 @@ export function DepositFlow({
   ]);
 
   const confirmDeposit = useCallback(
-    async (hash: Hex) => {
+    async (hash: Hex, previousPrincipalHandle?: Hex) => {
       try {
         setStage("confirming");
         const receipt = await waitForReceipt(hash);
@@ -382,12 +382,22 @@ export function DepositFlow({
         if (!address || args.owner?.toLowerCase() !== address.toLowerCase()) {
           throw new Error("The callback event was not bound to the connected wallet.");
         }
+        const refreshedSnapshot = await snapshot.refetch();
+        await asset.refetch();
+        if (
+          previousPrincipalHandle &&
+          refreshedSnapshot.data?.position?.principalHandle?.toLowerCase() ===
+            previousPrincipalHandle.toLowerCase()
+        ) {
+          throw new Error(
+            "The pool callback was rejected and your principal did not change. Your cUSDT transfer was refunded.",
+          );
+        }
         updateOperation(`veilsave:deposit:${hash}`, {
           expectedState: "callback-processed",
           epochId: args.pendingEpoch?.toString(),
           retryable: false,
         });
-        await Promise.all([snapshot.refetch(), asset.refetch()]);
         confidentialBalance.markStale();
         invalidatePrivateValues();
         setPendingEpoch(args.pendingEpoch ?? null);
@@ -527,7 +537,7 @@ export function DepositFlow({
         chainId,
         wallet: address,
       });
-      await confirmDeposit(hash);
+      await confirmDeposit(hash, position?.principalHandle ?? ZERO_HANDLE);
     } catch (cause) {
       fail(cause, "deposit");
     }
@@ -538,6 +548,7 @@ export function DepositFlow({
     fail,
     parsedAmount,
     poolAddress,
+    position?.principalHandle,
     position?.occupied,
     publicClient,
     slot?.status,
